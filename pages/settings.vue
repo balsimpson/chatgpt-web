@@ -3,14 +3,7 @@
     <nav class="flex justify-between w-full max-w-4xl px-8 py-6 mx-auto">
       <NuxtLink to="/" class="font-bold text-stone-400">My<span class="text-amber-500">GPT</span></NuxtLink>
       <div class="flex space-x-12">
-        <button @click.prevent="isMenuShowing = !isMenuShowing"
-          class="flex text-white transition-opacity opacity-50 cursor-pointer hover:opacity-100 target:bg-amber-500">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-            class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-          </svg> <span class="pl-3">Ideas</span>
-        </button>
+        
         <NuxtLink to="/settings" id="settings"
           class="text-white transition-opacity opacity-50 cursor-pointer hover:opacity-100 target:bg-amber-500"><svg
             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -33,6 +26,8 @@
             <div>All changes are automatically saved to
               <pre class="inline">localStorage</pre>.
             </div>
+
+            <div>{{ totalTokens }}</div>
           </div>
           <form class="px-4 mt-12 space-y-3">
             <div class="flex flex-col justify-between w-full sm:flex-row sm:gap-x-4 gap-y-4">
@@ -129,6 +124,8 @@ import prompts from "~/assets/prompts.json"
 const filteredPrompts = ref([])
 const searchTerm = ref("")
 
+const totalTokens = ref()
+
 const models = [
   'gpt-3.5-turbo',
   'text-davinci-003',
@@ -206,6 +203,8 @@ onMounted(async () => {
   top_p.value = await JSON.parse(localStorage.getItem('gpt3-top_p'));
   frequency_penalty.value = await JSON.parse(localStorage.getItem('gpt3-frequency_penalty')) || 0
   presence_penalty.value = await JSON.parse(localStorage.getItem('gpt3-presence_penalty')) || 0
+
+  totalTokens.value = JSON.parse(localStorage.getItem("gpt3-total_tokens")) || 0
 })
 </script>
 

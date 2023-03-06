@@ -1,14 +1,14 @@
 <template>
-  <div class="flex flex-col h-screen bg-[#1d1d20]">
-    <nav class="flex items-center justify-between w-full max-w-4xl px-8 py-6 mx-auto bg-[#333541]">
+  <div class="flex flex-col h-screen w-full bg-[#333541]">
+    <nav class="flex items-center justify-between w-full max-w-4xl px-8 py-6 mx-auto">
       <NuxtLink to="/" class="font-bold text-stone-400">My<span class="text-amber-500">GPT</span></NuxtLink>
 
-      <div class="flex items-center justify-between w-full max-w-xl px-6 mx-auto space-x-2">
+      <!-- <div class="items-center justify-between hidden w-full max-w-xl px-6 mx-auto space-x-2 sm:flex">
         <AppAutocomplete @select="setPersona" @clear="isPersonaActivated = false" class="w-full" :options="prompts"
           placeholder="choose persona" />
         <button @click="startChat" :class="[isPersonaActivated ? 'opacity-100' : 'opacity-30 pointer-events-none']"
           class="px-2 py-1 rounded shrink-0 bg-amber-500">Start chat</button>
-      </div>
+      </div> -->
       <NuxtLink to="/settings" id="settings"
         class="text-white transition-opacity opacity-50 cursor-pointer hover:opacity-100 target:bg-amber-500"><svg
           xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -20,32 +20,79 @@
 
       </NuxtLink>
     </nav>
+    <!-- <div class="flex items-center justify-between w-full px-6 pb-6 mx-auto space-x-2 bg-[#212123] sm:hidden">
+      <AppAutocomplete @select="setPersona" @clear="isPersonaActivated = false" class="w-full" :options="prompts"
+        placeholder="choose persona" />
+      <button @click="startChat" :class="[isPersonaActivated ? 'opacity-100' : 'opacity-30 pointer-events-none']"
+        class="px-2 py-1 rounded shrink-0 bg-amber-500">Start chat</button>
+    </div> -->
 
     <!-- <highlightjs language="js" code="console.log('Hello World');" /> -->
 
     <div ref="chatContainer" id="container" class="flex-grow flex  overflow-y-auto bg-[#333541] h-full flex-col">
-      <AppCard v-for="message in messages" :text="message.content" :sender="message.role" />
+      <AppCard v-if="messages.length" v-for="message in messages" :text="message.content" :sender="message.role"
+        :class="[message.role == 'system' ? 'first:hidden' : '']" />
+
+      <div v-else class="flex flex-col items-center justify-center w-full h-full px-4">
+        <div class="py-3 text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            aria-hidden="true" class="w-10 h-10">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"></path>
+          </svg>
+        </div>
+        <div class="mb-3 text-2xl font-semibold text-center text-gray-100 sm:text-4xl">Choose a persona</div>
+        <p class="max-w-md mb-6 text-sm text-center text-gray-400">Give ChatGPT a persona like Travel Guide or Adevrtising
+          Agency for a richer conversation and better results.</p>
+        <AppAutocomplete @select="setPersona" @clear="isPersonaActivated = false" class="w-full max-w-md"
+          :options="prompts" placeholder="choose persona" />
+        <button @click="startChat" :class="[isPersonaActivated ? 'opacity-100' : 'opacity-30 pointer-events-none', isActivatingPersona ? 'pointer-events-none animate-pulse' : '']"
+          class="px-6 py-1 mt-3 font-semibold tracking-wide transition-colors rounded shrink-0 bg-zinc-400 hover:bg-zinc-100">{{
+            startChatBtnTxt }}</button>
+        <!-- <div class="max-w-2xl mx-auto max-h-[270px] overflow-y-scroll">
+          <div class="grid gap-3 sm:grid-cols-2">
+            <button v-for="prompt in prompts" class="w-full p-3 text-gray-200 rounded-md bg-gray-50 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-gray-900">{{prompt.title}}</button>
+            
+          </div>
+        </div> -->
+      </div>
     </div>
 
     <div
       class="w-full md:border-t-0 border-white/20 md:border-transparent md:bg-vert-light-gradient bg-[#333541] md:bg-vert-dark-gradient">
-      <div class="flex items-center justify-center pt-2 text-xs uppercase text-zinc-400">
-        <div>Tokens used: 400</div>
+      <div v-if="isShowingUsage" class="flex items-center justify-center pt-2 space-x-4 text-xs uppercase text-zinc-400">
+        <div>Prompt <span class="font-bold text-white">{{ usage.prompt_tokens }}</span></div>
+        <div>Completion <span class="font-bold text-white">{{ usage.completion_tokens }}</span></div>
+        <div>Total <span class="font-bold text-white">{{ usage.total_tokens }}</span></div>
+      </div>
+      <div v-else
+        class="flex items-center justify-between max-w-xl px-8 pt-2 mx-auto text-xs text-gray-400 uppercase lg:max-w-3xl">
+        <button v-if="messages.length" @click.prevent="clearChat" class="uppercase transition hover:text-gray-200">Clear
+          chat</button>
+        <a v-if="messages.length" :href="chatDownloadURL" download="myChat.txt"
+          class="flex items-center px-2 py-1 transition-colors rounded active:bg-gray-900 hover:bg-gray-900">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            class="w-3 h-3">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          <span class="ml-2">Save Chat</span></a>
+
       </div>
       <form id="question"
-        class="flex flex-row gap-3 px-6 py-3 mx-2 stretch last:mb-2 md:last:mb-6 lg:mx-auto lg:max-w-3xl">
+        class="flex flex-row gap-3 px-6 pt-1 pb-3 mx-2 stretch last:mb-2 md:last:mb-6 lg:mx-auto lg:max-w-3xl">
         <div class="relative flex flex-1 h-full md:flex-col">
 
           <div
-            class="flex flex-col w-full pb-2 flex-grow md:py-3 md:pl-4 relative border border-gray-900/50 text-white bg-[#40414f] rounded-md shadow-[0_0_15px_rgba(0,0,0,0.10)]">
+            class="flex flex-col w-full pb-2 flex-grow py-3 md:pl-4 relative border border-gray-900/50 text-white bg-[#40414f] rounded-md shadow-[0_0_15px_rgba(0,0,0,0.10)]">
 
             <textarea @keyup.enter.prevent="getCompletion" @input="adjustTextareaHeight" ref="textarea" tabindex="0"
               rows="1" placeholder=""
-              class="w-full p-0 pl-2 m-0 bg-transparent border-0 resize-none pr-7 focus:ring-0 focus-visible:ring-0 dark:bg-transparent md:pl-0 focus:outline-none"
+              class="w-full p-0 pl-4 m-0 bg-transparent border-0 resize-none pr-7 focus:ring-0 focus-visible:ring-0 dark:bg-transparent focus:outline-none"
               v-model="inputText"></textarea>
 
             <button @click.prevent="getCompletion"
-              class="absolute p-1 rounded-md text-gray-500 bottom-1.5 right-1 md:bottom-2.5 md:right-2 hover:bg-gray-100 dark:hover:text-gray-400 dark:hover:bg-gray-900 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent">
+              class="absolute p-1 rounded-md text-gray-500 right-1 md:bottom-2.5 md:right-2 hover:bg-gray-100 dark:hover:text-gray-400 dark:hover:bg-gray-900 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent">
               <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 20 20"
                 class="w-4 h-4 rotate-90" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -62,20 +109,33 @@
 </template>
 
 <script setup>
-
+// import {SSE} from "sse"
 import prompts from "~/assets/prompts.json"
 const textarea = ref()
 const inputText = ref('');
 const completion = ref('');
 
 const isPersonaActivated = ref(false)
+const isActivatingPersona = ref(false)
+const currentPersona = ref()
 const isSearching = ref(false)
 const isMenuShowing = ref(false)
+const isShowingUsage = ref(false)
 const chatContainer = ref(null);
+const chatDownloadURL = ref("")
 const messages = ref([])
+const usage = ref()
+
+const startChatBtnTxt = ref('Start chat')
 
 const getCompletion = async (event) => {
-  if (event.code == "Enter") {
+
+  let max_tokens = localStorage.getItem("gpt3-max_tokens") || 256
+  let temperature = localStorage.getItem("gpt3-temperature") || 0.7
+  let frequency_penalty = localStorage.getItem("gpt3-frequency_penalty") || 0
+  let presence_penalty = localStorage.getItem("gpt3-presence_penalty") || 0
+
+  if (event.code == "Enter" || event.type == "click") {
     textarea.value.style.height = 24 + 'px';
     const msg = {
       "role": "user",
@@ -85,15 +145,15 @@ const getCompletion = async (event) => {
     inputText.value = ""
     messages.value.push(msg)
 
-    console.log(messages.value)
     let { data } = await useFetch(`/api/openai`, {
       method: "POST",
       body: JSON.stringify({
-        messages: messages.value
+        messages: messages.value,
+        options: { max_tokens, temperature, frequency_penalty, presence_penalty }
       })
     })
 
-    console.log("result", data.value)
+    // console.log("result", data.value)
 
     const res = {
       "role": "assistant",
@@ -102,11 +162,49 @@ const getCompletion = async (event) => {
     }
     // console.log(res)
     messages.value.push(res)
-    // localStorage.setItem('gpt3-chat_current', JSON.stringify(messages.value))
+    saveChat()
+    showUsage(data.value.usage)
+    localStorage.setItem('gpt3-chat_current', JSON.stringify(messages.value))
   } else {
     console.log(event)
   }
 
+}
+
+const showUsage = (val) => {
+  usage.value = val
+  isShowingUsage.value = true
+  setTimeout(() => {
+    isShowingUsage.value = false
+  }, 7000)
+
+  incrementTokenCount(usage.value.total_tokens)
+}
+
+const saveChat = () => {
+
+  let txt = ""
+
+  for (let i = 0; i < messages.value.length; i++) {
+    // console.log((messages))
+    txt += messages.value[i].role + ": " + messages.value[i].content + "\n"
+  }
+
+  let myBlob = new Blob([txt], { type: "text/plain" });
+  chatDownloadURL.value = window.URL.createObjectURL(myBlob);
+}
+
+const clearChat = () => {
+  messages.value = []
+  isPersonaActivated.value = false;
+  currentPersona.value = null;
+  localStorage.removeItem('gpt3-chat_current')
+}
+
+const incrementTokenCount = (tokensUsed) => {
+  let totalTokens = JSON.parse(localStorage.getItem('gpt3-total_tokens')) || 0
+  totalTokens = totalTokens + tokensUsed
+  localStorage.setItem("gpt3-total_tokens", totalTokens)
 }
 
 function scrollToBottom() {
@@ -144,17 +242,52 @@ function animateScroll(duration) {
 }
 
 const setPersona = (persona) => {
-  console.log('event', persona)
+  // console.log('persona', persona)
   isPersonaActivated.value = true;
+  currentPersona.value = persona;
 }
 
-const startChat = () => {
+const startChat = async () => {
+  isActivatingPersona.value = true
+  startChatBtnTxt.value = "Starting..."
+  let max_tokens = localStorage.getItem("gpt3-max_tokens") || 256
+  let temperature = localStorage.getItem("gpt3-temperature") || 0.7
+  let frequency_penalty = localStorage.getItem("gpt3-frequency_penalty") || 0
+  let presence_penalty = localStorage.getItem("gpt3-presence_penalty") || 0
 
+  const msg = {
+    "role": "system",
+    "content": currentPersona.value.content,
+  }
+
+
+  let { data } = await useFetch(`/api/openai`, {
+    method: "POST",
+    body: JSON.stringify({
+      messages: [msg],
+      options: { max_tokens, temperature, frequency_penalty, presence_penalty }
+    })
+  })
+
+  startChatBtnTxt.value = 'Start chat'
+  isActivatingPersona.value = false
+
+  const res = {
+    "role": "assistant",
+    "content": data.value.message.content.trim(),
+  }
+
+  messages.value.push(msg)
+  messages.value.push(res)
+  saveChat()
+  showUsage(data.value.usage)
+  localStorage.setItem('gpt3-chat_current', JSON.stringify(messages.value))
 }
 
 onMounted(() => {
-  messages.value = localStorage.getItem("gpt3-chat_current") || []
-
+  // localStorage.setItem("gpt3-total_tokens", 0)
+  messages.value = JSON.parse((localStorage.getItem("gpt3-chat_current"))) || []
+  saveChat()
   // Create an observer and pass it a callback.
   let observer = new MutationObserver(scrollToBottom);
   // Tell it to look for new children that will change the height.

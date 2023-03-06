@@ -17,6 +17,9 @@ module.exports = {
         arvo: ["Arvo", "serif"],
         lora: ["Lora", "serif"],
        },
+       transitionProperty: {
+        'width': 'width'
+    },
     },
   },
   plugins: [require('@tailwindcss/typography'),],

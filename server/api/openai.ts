@@ -1,5 +1,7 @@
 import { Configuration, OpenAIApi } from "openai"
-
+// import SSE from "sse"
+// import pkg from '../node_modules/sse/index.js';
+  // const { SSE } = pkg;
 export default defineEventHandler(async (event) => {
   try {
     const config = useRuntimeConfig()
@@ -10,17 +12,22 @@ export default defineEventHandler(async (event) => {
     const openai = new OpenAIApi(configuration);
     const { q } = getQuery(event)
     const body = await readBody(event)
+    // console.log("body", body)
 
     const messages = body.messages
-    // console.log("messages", messages)
+    let options = body.options
     // return event.node.req
 
     const prediction = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: messages,
-      max_tokens: 30,
-      temperature: 0.7,
+      max_tokens: options.max_tokens,
+      temperature: options.temperature,
+      frequency_penalty: options.frequency_penalty,
+      presence_penalty: options.presence_penalty
     });
+
+    
 
     // console.log("usage", prediction.data.usage)
     // // // // @ts-ignore

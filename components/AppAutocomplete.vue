@@ -1,10 +1,10 @@
 <template>
   <div class="relative z-80">
     <input
-      @keyup="findOption()"
+      @keyup="findOption($event)"
       v-model="optionInput"
       type="text"
-      class="flex items-center w-full px-2 py-1 text-base font-normal text-yellow-500 border-2 placeholder-stone-600 border-stone-700 focus:outline-none focus:border-yellow-500 bg-stone-800 focus-within:border-yellow-500"
+      class="flex items-center w-full px-2 py-1 text-base font-normal border-2 text-zinc-300 placeholder-zinc-600 bg-zinc-800 border-zinc-700 focus:outline-none focus:border-zinc-500 focus-within:border-zinc-500"
       :placeholder="placeholder"
 
       :class="[isDefaultOptionsActive ? 'rounded-t': 'rounded']"
@@ -15,7 +15,7 @@
       class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
     >
       <svg
-        class="w-5 h-5 text-gray-400"
+        class="w-5 h-5 text-zinc-400"
         fill="currentColor"
         viewBox="0 0 20 20"
       >
@@ -29,12 +29,12 @@
     <!-- add a dropdown -->
     <div
       v-if="isDefaultOptionsActive"
-      class="absolute z-10 w-full overflow-y-scroll border-b border-l border-r divide-y rounded-b bg-stone-800 divide-stone-700 max-h-32 border-stone-700 text-stone-400"
+      class="absolute z-10 w-full overflow-y-scroll border-b border-l border-r divide-y rounded-b text-zinc-400 bg-zinc-800 border-zinc-700 divide-zinc-700 max-h-32"
     >
       <div
         @click="selectOption(option)"
         v-for="option in filteredOptions"
-        class="px-2 py-1 cursor-pointer hover:bg-stone-600"
+        class="px-2 py-1 cursor-pointer hover:bg-zinc-600"
       >
         {{ option.title }}
       </div>
@@ -53,7 +53,11 @@ const isDefaultOptionsActive = ref(false);
 const selected = ref(null);
 const optionInput = ref(props.val);
 
-const findOption = () => {
+const findOption = (event) => {
+  if (event.key == "Backspace") {
+    emit("clear")
+  }
+  // console.log(event.key)
   const input = optionInput.value;
   if (input.length > 0) {
     isDefaultOptionsActive.value = true;
