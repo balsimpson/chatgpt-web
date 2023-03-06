@@ -1,24 +1,24 @@
 <template>
-  <div class="flex flex-col h-screen w-full bg-[#333541]">
-    <nav class="flex items-center justify-between w-full max-w-4xl px-8 py-6 mx-auto">
-      <NuxtLink to="/" class="font-bold text-stone-400">My<span class="text-amber-500">GPT</span></NuxtLink>
+  <div class="flex flex-col h-screen w-full bg-[#333541] relative">
+    <nav class="flex items-end justify-between w-full max-w-4xl px-8 py-6 mx-auto">
+      <NuxtLink to="/" class="text-xl font-bold text-stone-400">My<span class="text-amber-500">GPT</span></NuxtLink>
 
-      <!-- <div class="items-center justify-between hidden w-full max-w-xl px-6 mx-auto space-x-2 sm:flex">
-        <AppAutocomplete @select="setPersona" @clear="isPersonaActivated = false" class="w-full" :options="prompts"
-          placeholder="choose persona" />
-        <button @click="startChat" :class="[isPersonaActivated ? 'opacity-100' : 'opacity-30 pointer-events-none']"
-          class="px-2 py-1 rounded shrink-0 bg-amber-500">Start chat</button>
-      </div> -->
-      <NuxtLink to="/settings" id="settings"
-        class="text-white transition-opacity opacity-50 cursor-pointer hover:opacity-100 target:bg-amber-500"><svg
-          xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-          class="w-6 h-6">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
+      <div class="flex items-end space-x-6">
+        <div class="text-right text-zinc-400">
+          <div class="text-xs font-semibold">{{ totalTokens }}</div>
+          <div class="text-xs text-zinc-500">tokens used</div>
+        </div>
+        <NuxtLink to="/settings" id="settings"
+          class="text-white transition-opacity opacity-50 cursor-pointer hover:opacity-100 target:bg-amber-500"><svg
+            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            class="w-8 h-8">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
 
-      </NuxtLink>
+        </NuxtLink>
+      </div>
     </nav>
     <!-- <div class="flex items-center justify-between w-full px-6 pb-6 mx-auto space-x-2 bg-[#212123] sm:hidden">
       <AppAutocomplete @select="setPersona" @clear="isPersonaActivated = false" class="w-full" :options="prompts"
@@ -46,7 +46,8 @@
           Agency for a richer conversation and better results.</p>
         <AppAutocomplete @select="setPersona" @clear="isPersonaActivated = false" class="w-full max-w-md"
           :options="prompts" placeholder="choose persona" />
-        <button @click="startChat" :class="[isPersonaActivated ? 'opacity-100' : 'opacity-30 pointer-events-none', isActivatingPersona ? 'pointer-events-none animate-pulse' : '']"
+        <button @click="startChat"
+          :class="[isPersonaActivated ? 'opacity-100' : 'opacity-30 pointer-events-none', isActivatingPersona ? 'pointer-events-none animate-pulse' : '']"
           class="px-6 py-1 mt-3 font-semibold tracking-wide transition-colors rounded shrink-0 bg-zinc-400 hover:bg-zinc-100">{{
             startChatBtnTxt }}</button>
         <!-- <div class="max-w-2xl mx-auto max-h-[270px] overflow-y-scroll">
@@ -71,12 +72,13 @@
           chat</button>
         <a v-if="messages.length" :href="chatDownloadURL" download="myChat.txt"
           class="flex items-center px-2 py-1 transition-colors rounded active:bg-gray-900 hover:bg-gray-900">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-            class="w-3 h-3">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+            <path fill-rule="evenodd"
+              d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-.53 14.03a.75.75 0 001.06 0l3-3a.75.75 0 10-1.06-1.06l-1.72 1.72V8.25a.75.75 0 00-1.5 0v5.69l-1.72-1.72a.75.75 0 00-1.06 1.06l3 3z"
+              clip-rule="evenodd" />
           </svg>
-          <span class="ml-2">Save Chat</span></a>
+
+          <span class="ml-1">Save Chat</span></a>
 
       </div>
       <form id="question"
@@ -84,11 +86,11 @@
         <div class="relative flex flex-1 h-full md:flex-col">
 
           <div
-            class="flex flex-col w-full pb-2 flex-grow py-3 md:pl-4 relative border border-gray-900/50 text-white bg-[#40414f] rounded-md shadow-[0_0_15px_rgba(0,0,0,0.10)]">
+            class="flex flex-col w-full pb-2 flex-grow py-3  relative border border-gray-900/50 text-white bg-[#40414f] rounded-md shadow-[0_0_15px_rgba(0,0,0,0.10)]">
 
             <textarea @keyup.enter.prevent="getCompletion" @input="adjustTextareaHeight" ref="textarea" tabindex="0"
               rows="1" placeholder=""
-              class="w-full p-0 pl-4 m-0 bg-transparent border-0 resize-none pr-7 focus:ring-0 focus-visible:ring-0 dark:bg-transparent focus:outline-none"
+              class="w-full p-0 pl-2 m-0 bg-transparent border-0 resize-none pr-7 focus:ring-0 focus-visible:ring-0 dark:bg-transparent focus:outline-none"
               v-model="inputText"></textarea>
 
             <button @click.prevent="getCompletion"
@@ -105,6 +107,25 @@
       </form>
 
     </div>
+
+    <div v-if="!isValidAPIKey"
+      class="absolute inset-0 z-10 flex items-center justify-center w-full h-full p-6 bg-black/80"
+      :class="[isValidAPIKey ? 'visible' : 'hidden']">
+      <div class="z-20 max-w-md p-4 border rounded-lg shadow text-zinc-100 bg-zinc-800 border-zinc-600">
+        <div class="flex">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            class="w-6 h-6 text-red-600">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+
+          <span class="pl-3 text-xl font-semibold">OpenAI API key is missing!</span>
+        </div>
+        <p class="mt-3 text-sm text-zinc-400">Add the OpenAI key to your environment variables on Vercel. Get your OpenAI
+          key <a href="https://platform.openai.com/account/api-keys" target="_blank" class="text-teal-500">here</a>.</p>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -127,6 +148,51 @@ const messages = ref([])
 const usage = ref()
 
 const startChatBtnTxt = ref('Start chat')
+const isValidAPIKey = ref(false)
+
+const totalTokens = ref()
+
+useHead({
+  title: "MyGPT",
+  meta: [
+    {
+      name: "description",
+      content: "ChatGPT with quick select personas and chat download functionality.",
+    },
+    {
+      property: "og:title",
+      content: "MyGPT",
+    },
+    {
+      property: "og:description",
+      content: "ChatGPT with quick select personas and chat download functionality.",
+    },
+    {
+      property: "og:image",
+      content: "",
+    },
+    {
+      property: "og:url",
+      content: "https://pullonath.in/",
+    },
+    {
+      name: "twitter:card",
+      content: "summary_large_image",
+    },
+    {
+      name: "twitter:title",
+      content: "MyGPT",
+    },
+    {
+      name: "twitter:description",
+      content: "ChatGPT with quick select personas and chat download functionality.",
+    },
+    {
+      name: "twitter:image",
+      content: "",
+    },
+  ],
+});
 
 const getCompletion = async (event) => {
 
@@ -153,18 +219,24 @@ const getCompletion = async (event) => {
       })
     })
 
-    // console.log("result", data.value)
+    if (data.value.error) {
+      console.log("No Api key")
+    } else {
 
-    const res = {
-      "role": "assistant",
-      "content": data.value.message.content.trim(),
-      // "date": Date.now()
+      // console.log("result", data.value)
+
+      const res = {
+        "role": "assistant",
+        "content": data.value.message.content.trim(),
+        // "date": Date.now()
+      }
+      // console.log(res)
+      messages.value.push(res)
+      saveChat()
+      showUsage(data.value.usage)
+      localStorage.setItem('gpt3-chat_current', JSON.stringify(messages.value))
     }
-    // console.log(res)
-    messages.value.push(res)
-    saveChat()
-    showUsage(data.value.usage)
-    localStorage.setItem('gpt3-chat_current', JSON.stringify(messages.value))
+
   } else {
     console.log(event)
   }
@@ -285,6 +357,15 @@ const startChat = async () => {
 }
 
 onMounted(() => {
+  totalTokens.value = JSON.parse(localStorage.getItem("gpt3-total_tokens")) || 0
+
+  const env = useRuntimeConfig()
+  if (!env.public?.OPENAI_KEY) {
+    console.log("No Api key", env)
+    isValidAPIKey.value = false;
+  }
+
+  isValidAPIKey.value = true;
   // localStorage.setItem("gpt3-total_tokens", 0)
   messages.value = JSON.parse((localStorage.getItem("gpt3-chat_current"))) || []
   saveChat()
@@ -302,7 +383,7 @@ function adjustTextareaHeight(event) {
     textarea.value.style.height = 'auto';
     textarea.value.style.height = textarea.value.scrollHeight + 'px';
   } else {
-    console.log("else", event)
+    // console.log("else", event)
     textarea.value.style.height = 30 + 'px';
   }
   // if (event.inputType !== "insertLineBreak") {

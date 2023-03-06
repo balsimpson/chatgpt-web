@@ -9,6 +9,12 @@ export default defineEventHandler(async (event) => {
       apiKey: config.private.OPENAI_KEY,
     });
 
+    if (!config.private.OPENAI_KEY) {
+      return {
+        error: "No API key"
+      }
+    }
+
     const openai = new OpenAIApi(configuration);
     const { q } = getQuery(event)
     const body = await readBody(event)
