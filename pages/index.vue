@@ -151,7 +151,7 @@ const startChatBtnTxt = ref('Start chat')
 const isValidAPIKey = ref(false)
 
 const totalTokens = ref()
-
+const route = useRoute()
 useHead({
   title: "MyGPT",
   meta: [
@@ -357,11 +357,14 @@ const startChat = async () => {
 }
 
 onMounted(() => {
+
+  console.log('route', route.query)
+  
   totalTokens.value = JSON.parse(localStorage.getItem("gpt3-total_tokens")) || 0
 
   const env = useRuntimeConfig()
   if (!env.public?.OPENAI_KEY) {
-    console.log("No Api key", env)
+    console.log("No Api key")
     isValidAPIKey.value = false;
   }
 
