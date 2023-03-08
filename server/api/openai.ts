@@ -33,11 +33,6 @@ export default defineEventHandler(async (event) => {
       presence_penalty: options.presence_penalty
     });
 
-    
-
-    // console.log("usage", prediction.data.usage)
-    // // // // @ts-ignore
-    // // console.log("prediction", JSON.stringify(prediction.data.choices[0].message))
     return {
       message: prediction.data.choices[0].message,
       usage: prediction.data.usage
