@@ -83,34 +83,39 @@
         </template>
 
         <template #tab2>
-          <div class="space-y-2">
+          <div class="flex items-center justify-between w-full text-stone-400">
+            <div><span>{{ filteredPrompts.length }}</span> Prompts</div>
+            <button @click.prevent="isAddPrompt = !isAddPrompt">New Prompt</button>
+          </div>
+          <div v-if="isAddPrompt" class="mt-6 mb-4 space-y-2">
             <div>
-              <label for="hs-feedback-post-comment-name-1" class="block mb-2 text-xl font-medium text-white">Name</label>
-              <input type="text"
+              <label for="hs-feedback-post-comment-name-1" class="block mb-2 font-medium text-white">Name</label>
+              <input v-model="newPromptTitle" type="text"
                 class="block w-full px-4 py-3 text-sm rounded-md focus:border-amber-500 focus:ring-amber-500 sm:p-4 bg-stone-900 border-stone-700 text-stone-400">
 
             </div>
             <div>
-              <label for="hs-feedback-post-comment-name-1"
-                class="block mb-2 text-xl font-medium text-white">Prompt</label>
-              <textarea rows="4"
+              <label for="hs-feedback-post-comment-name-1" class="block mb-2 font-medium text-white">Prompt</label>
+              <textarea v-model="newPromptContent" rows="4"
                 class="block w-full px-4 py-3 text-sm rounded-md focus:border-amber-500 focus:ring-amber-500 sm:p-4 bg-stone-900 border-stone-700 text-stone-400">
-                  </textarea>
+                    </textarea>
             </div>
+
+            <button @click.prevent="addPrompt" class="px-3 py-1 text-sm border rounded text-stone-400">Add prompt</button>
           </div>
 
           <div class="mt-6 space-y-3">
 
             <div>
-              
-              <input v-model="searchTerm" @keyup="searchPrompts" type="text" placeholder="search..."
+
+              <input v-model="searchTerm" @keyup="searchPrompts" type="text" placeholder="search prompts"
                 class="block w-full px-4 py-3 text-sm rounded-md placeholder-stone-600 focus:border-amber-500 focus:ring-amber-500 focus:outline-none focus:ring-2 sm:p-4 bg-stone-900 border-stone-700 text-stone-400">
 
             </div>
-            <div v-for="prompt in filteredPrompts" class="p-4 border rounded border-stone-600 text-stone-400">
-              <div class="text-xl font-bold">{{ prompt.title }}</div>
-              <p>{{ prompt.content }}</p>
-            </div>
+            <PromptCard 
+              @update="savePrompt" 
+              @delete="deletePrompt" 
+              v-for="(prompt, index) in filteredPrompts" :prompt="prompt" :index="index"/>
           </div>
         </template>
       </AppTabs>
@@ -125,37 +130,18 @@ import prompts from "~/assets/prompts.json"
 
 const filteredPrompts = ref([])
 const searchTerm = ref("")
-
+const isAddPrompt = ref(false)
+const isEditingPrompt = ref(false)
 const totalTokens = ref()
 
 const models = [
   'gpt-3.5-turbo',
-  'text-davinci-003',
-  'text-curie-001',
-  'text-babbage-001',
-  'text-gPT-3',
-  'text-prompt-002'
+  // 'text-davinci-003',
+  // 'text-curie-001',
+  // 'text-babbage-001',
+  // 'text-gPT-3',
+  // 'text-prompt-002'
 ]
-
-
-
-// const temperature = ref(localStorage.getItem('gpt3-temperature') || 0.5)
-// const top_p = ref(localStorage.getItem('gpt3-top_p') || 1)
-// const frequency_penalty = ref(localStorage.getItem('gpt3-frequency_penalty') || 0)
-// const presence_penalty = ref(localStorage.getItem('gpt3-presence_penalty') || 0)
-
-// const updateSettings = (event) => {
-//   console.log(event)
-// }
-
-// const model = reactive({
-//   selectedModel: JSON.parse(localStorage.getItem('gpt3-model')) || 'text-davinci-003',
-//   maxTokens: JSON.parse(localStorage.getItem('gpt3-max_tokens')) || 256,
-//   temperature: JSON.parse(localStorage.getItem('gpt3-temperature')) || 0.7,
-//   top_p: JSON.parse(localStorage.getItem('gpt3-top_p')) || 1,
-//   frequency_penalty: JSON.parse(localStorage.getItem('gpt3-frequency_penalty')) || 0,
-//   presence_penalty: JSON.parse(localStorage.getItem('gpt3-presence_penalty')) || 0
-// })
 
 const selectedModel = ref(null)
 const maxTokens = ref(null)
@@ -163,6 +149,9 @@ const temperature = ref(null)
 const top_p = ref(null)
 const frequency_penalty = ref(null)
 const presence_penalty = ref(null)
+
+const newPromptTitle = ref("")
+const newPromptContent = ref("")
 
 const updateSettings = (event) => {
   const title = event.title
@@ -197,8 +186,41 @@ const searchPrompts = () => {
   filteredPrompts.value = searchByContent(searchTerm.value)
 }
 
+const addPrompt = () => {
+  let prompt = {
+    title: newPromptTitle.value,
+    content: newPromptContent.value
+  }
+
+  filteredPrompts.value.unshift(prompt)
+  localStorage.setItem('gpt3-prompts', JSON.stringify(filteredPrompts.value))
+}
+
+const savePrompt = (event) => {
+  filteredPrompts.value[event.index] = {
+    title: event.title,
+    content: event.content
+  }
+  localStorage.setItem('gpt3-prompts', JSON.stringify(filteredPrompts.value))
+}
+
+const deletePrompt = (event) => {
+  filteredPrompts.value = filteredPrompts.value.filter((prompt, index) => index !== event.index)
+  // console.log((event))
+  localStorage.setItem('gpt3-prompts', JSON.stringify(filteredPrompts.value))
+}
+
 onMounted(async () => {
-  filteredPrompts.value = prompts;
+
+  // check if there is localStorage version of the prompts
+  let savedPrompts = await JSON.parse(localStorage.getItem('gpt3-prompts'))
+  if (savedPrompts) {
+    filteredPrompts.value = savedPrompts
+  } else {
+    localStorage.setItem('gpt3-prompts', JSON.stringify(prompts))
+    filteredPrompts.value = prompts
+  }
+
   selectedModel.value = await JSON.parse(localStorage.getItem('gpt3-model')) || 'gpt-3.5-turbo';
   maxTokens.value = await JSON.parse(localStorage.getItem('gpt3-max_tokens')) || 256;
   temperature.value = await JSON.parse(localStorage.getItem('gpt3-temperature')) || 0.5;
