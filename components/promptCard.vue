@@ -23,14 +23,16 @@
         </svg>
       </button>
       
-      <div v-else class="space-x-3">
+      <div v-else class="space-x-8">
 
         <button @click.prevent="emit('delete',
           {
             title: prompt.title,
             content: prompt.content,
             index: index
-          }) ; isEditingPrompt = false">Delete</button>
+          }) ; isEditingPrompt = false"
+          class="text-red-500"
+          >Delete</button>
 
         <button @click.prevent="emit('update',
           {

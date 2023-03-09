@@ -55,12 +55,14 @@
           </svg>
         </div>
         <div class="mb-3 text-2xl font-semibold text-center text-gray-100 sm:text-4xl">Choose a <span
-            class="text-transparent bg-clip-text bg-gradient-to-br from-indigo-500 via-indigo-300/30 to-indigo-700">persona</span></div>
+            class="text-transparent bg-clip-text bg-gradient-to-br from-indigo-500 via-indigo-300/30 to-indigo-700">persona</span>
+        </div>
 
-        <p class="max-w-md mb-6 text-sm text-center text-gray-400">Give ChatGPT a persona like Travel Guide or Adevrtising
-          Agency for a richer conversation and better results.</p>
-        <AppAutocomplete @select="setPersona" @clear="isPersonaActivated = false" class="w-full max-w-md"
-          :options="prompts" placeholder="choose persona" />
+        <p class="max-w-md mb-6 text-sm text-center text-gray-400">Give ChatGPT a persona like <br> Travel Guide or
+          Adevrtising
+          Agency <br> for a richer conversation and better results.</p>
+        <AppAutocomplete @select="setPersona" @clear="isPersonaActivated = false"
+          class="w-full max-w-md" :options="savedPrompts" placeholder="choose persona" />
         <button @click="startChat"
           :class="[isPersonaActivated ? 'opacity-100' : 'opacity-30 pointer-events-none', isActivatingPersona ? 'pointer-events-none animate-pulse' : '']"
           class="px-6 py-1 mt-3 font-semibold tracking-wide transition-colors rounded shrink-0 bg-zinc-400 hover:bg-zinc-100">{{
@@ -147,13 +149,16 @@
 <script setup>
 // import {SSE} from "sse"
 import prompts from "~/assets/prompts.json"
+
+const savedPrompts = ref([])
 const textarea = ref()
 const inputText = ref('');
 const completion = ref('');
 
 const isPersonaActivated = ref(false)
 const isActivatingPersona = ref(false)
-const currentPersona = ref()
+const currentPersona = ref(null)
+const selectedPersonaTitle = ref("")
 const isSearching = ref(false)
 const isMenuShowing = ref(false)
 const isShowingUsage = ref(false)
@@ -210,8 +215,6 @@ useHead({
 });
 
 const getCompletion = async (event) => {
-
-
   if (inputText.value.length < 3) {
     console.log(inputText.value.length);
     return
@@ -411,9 +414,21 @@ async function replaceUrlsWithText(text) {
   return text;
 }
 
-onMounted(() => {
+onMounted(async () => {
 
-  console.log('route', route.query)
+  savedPrompts.value = JSON.parse(localStorage.getItem("gpt3-prompts")) || prompts
+  // let { p: persona } = route.query
+  // console.log('persona', persona)
+  // let allPrompts = await JSON.parse(localStorage.getItem('gpt3-prompts')) || prompts
+  // console.log('persona', persona)
+  // let searchByContent = fuzzy(allPrompts, 'content')
+  // let prompt = searchByContent(persona)
+  // console.log('prompt', prompt);
+  // if (prompt.length > 0) {
+  //   currentPersona.value = prompt[0]
+  //   selectedPersonaTitle.value = prompt[0].title
+  //   isPersonaActivated.value = true
+  // }
 
   totalTokens.value = JSON.parse(localStorage.getItem("gpt3-total_tokens")) || 0
 
@@ -460,7 +475,7 @@ function adjustTextareaHeight(event) {
 }
 
 .markdown p {
-  margin-bottom: 0;
+  margin-bottom: 0.5em;
   margin-top: 0;
 }
 </style>

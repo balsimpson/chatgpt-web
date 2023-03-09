@@ -22,7 +22,7 @@
     </nav>
 
 
-    <div class="w-full max-w-2xl px-4 mx-auto">
+    <div class="w-full max-w-2xl px-4 py-12 mx-auto">
       <AppTabs>
         <template #tab1>
           <div class="p-5 border rounded text-stone-400 border-zinc-600">
@@ -40,9 +40,7 @@
                   class="w-full px-3 py-4 rounded bg-stone-900 text-stone-300 focus:outline-none focus:ring-1 focus:ring-amber-600">
                   <option v-for="model in models" :key="model" :value="model">{{ model }}</option>
                 </select>
-                <div class="pt-3 text-xs tracking-wide text-white/30">The model which will generate the completion.
-                  Some models are more sutiable for certain tasks than others. "text-davinci-003 is the most general and
-                  powerful one</div>
+                <div class="pt-3 text-xs tracking-wide text-white/30">Currently only one chat model available</div>
               </div>
 
               <div v-if="maxTokens" class="w-full mb-4 sm:mb-8">
@@ -52,11 +50,8 @@
                   class="block w-full px-4 py-3 text-sm rounded-md focus:border-amber-500 focus:ring-amber-500 sm:p-4 bg-stone-900 border-stone-700 text-stone-400"
                   placeholder="256" v-model="maxTokens">
                 <div class="pt-3 text-xs tracking-wide text-white/30">The maximum number of tokens to generate in the
-                  completion.
-                  The token count of your prompt plus this parameter cannot exceed the models context length.
-                  "text-davinci-002" and "text-davinci-003" models have a context length of 4096 tokens, while the others
-                  have
-                  2048.</div>
+                  completion. The token count of your prompt plus this parameter cannot exceed the models context length.
+                  Max is 2048 tokens.</div>
               </div>
             </div>
 
@@ -98,7 +93,7 @@
               <label for="hs-feedback-post-comment-name-1" class="block mb-2 font-medium text-white">Prompt</label>
               <textarea v-model="newPromptContent" rows="4"
                 class="block w-full px-4 py-3 text-sm rounded-md focus:border-amber-500 focus:ring-amber-500 sm:p-4 bg-stone-900 border-stone-700 text-stone-400">
-                    </textarea>
+                      </textarea>
             </div>
 
             <button @click.prevent="addPrompt" class="px-3 py-1 text-sm border rounded text-stone-400">Add prompt</button>
@@ -112,10 +107,8 @@
                 class="block w-full px-4 py-3 text-sm rounded-md placeholder-stone-600 focus:border-amber-500 focus:ring-amber-500 focus:outline-none focus:ring-2 sm:p-4 bg-stone-900 border-stone-700 text-stone-400">
 
             </div>
-            <PromptCard 
-              @update="savePrompt" 
-              @delete="deletePrompt" 
-              v-for="(prompt, index) in filteredPrompts" :prompt="prompt" :index="index"/>
+            <PromptCard @update="savePrompt" @delete="deletePrompt" v-for="(prompt, index) in filteredPrompts"
+              :prompt="prompt" :index="index" />
           </div>
         </template>
       </AppTabs>
@@ -187,13 +180,15 @@ const searchPrompts = () => {
 }
 
 const addPrompt = () => {
-  let prompt = {
-    title: newPromptTitle.value,
-    content: newPromptContent.value
-  }
+  if (newPromptTitle.value && newPromptContent.value) {
+    let prompt = {
+      title: newPromptTitle.value,
+      content: newPromptContent.value
+    }
 
-  filteredPrompts.value.unshift(prompt)
-  localStorage.setItem('gpt3-prompts', JSON.stringify(filteredPrompts.value))
+    filteredPrompts.value.unshift(prompt)
+    localStorage.setItem('gpt3-prompts', JSON.stringify(filteredPrompts.value))
+  }
 }
 
 const savePrompt = (event) => {

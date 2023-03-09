@@ -1,41 +1,20 @@
 <template>
   <div class="relative z-80">
-    <input
-      @keyup="findOption($event)"
-      v-model="optionInput"
-      type="text"
+    <input @keyup="findOption($event)" v-model="optionInput" type="text"
       class="flex items-center w-full px-2 py-1 text-base font-normal border-2 text-zinc-300 placeholder-zinc-600 bg-zinc-800 border-zinc-700 focus:outline-none focus:border-zinc-500 focus-within:border-zinc-500"
-      :placeholder="placeholder"
-
-      :class="[isDefaultOptionsActive ? 'rounded-t': 'rounded']"
-    />
+      :placeholder="placeholder" :class="[isDefaultOptionsActive ? 'rounded-t' : 'rounded']" />
     <!-- add an icon on the right -->
-    <div
-      @click="showDefaultOptions"
-      class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
-    >
-      <svg
-        class="w-5 h-5 text-zinc-400"
-        fill="currentColor"
-        viewBox="0 0 20 20"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
-          clip-rule="evenodd"
-        />
+    <div @click="showDefaultOptions" class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer">
+      <svg class="w-5 h-5 text-zinc-400" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
+          clip-rule="evenodd" />
       </svg>
     </div>
     <!-- add a dropdown -->
-    <div
-      v-if="isDefaultOptionsActive"
-      class="absolute z-10 w-full overflow-y-scroll border-b border-l border-r divide-y rounded-b text-zinc-400 bg-zinc-800 border-zinc-700 divide-zinc-700 max-h-32"
-    >
-      <div
-        @click="selectOption(option)"
-        v-for="option in filteredOptions"
-        class="px-2 py-1 cursor-pointer hover:bg-zinc-600"
-      >
+    <div v-if="isDefaultOptionsActive"
+      class="absolute z-10 w-full overflow-y-scroll border-b border-l border-r divide-y rounded-b text-zinc-400 bg-zinc-800 border-zinc-700 divide-zinc-700 max-h-32">
+      <div @click="selectOption(option)" v-for="option in filteredOptions"
+        class="px-2 py-1 cursor-pointer hover:bg-zinc-600">
         {{ option.title }}
       </div>
     </div>
@@ -51,7 +30,7 @@ const options = computed(() => {
 const filteredOptions = ref([]);
 const isDefaultOptionsActive = ref(false);
 const selected = ref(null);
-const optionInput = ref(props.val);
+const optionInput = ref(props.val || "");
 
 const findOption = (event) => {
   if (event.key == "Backspace") {
@@ -84,7 +63,13 @@ const showDefaultOptions = () => {
   isDefaultOptionsActive.value = !isDefaultOptionsActive.value;
   filteredOptions.value = options.value;
 };
+
+// onMounted(() => {
+//   console.log(props.val);
+//   if (props.val) {
+//     selectOption(props.val)
+//   }
+// })
 </script>
 
-<style>
-</style>
+<style></style>

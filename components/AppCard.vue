@@ -1,11 +1,11 @@
 <template>
-  <div class="w-full text-gray-800 border-b border-gray-900/50 dark:text-gray-100 group "
+  <div class="w-full text-gray-800 border-b border-gray-900/50 group "
     :class="[sender == 'assistant' ? 'bg-[#444654]' : 'bg-[#333541]']">
     <div class="flex gap-4 p-4 m-auto text-base md:gap-6 md:max-w-2xl lg:max-w-2xl xl:max-w-3xl md:py-6 lg:px-0">
       <div class="w-[30px] flex flex-col relative items-end">
         <div v-if="sender == 'assistant'"
-          class="relative h-[30px] w-[30px] p-1 rounded-sm text-white flex items-center justify-center"
-          style="background-color: rgb(16, 163, 127);">
+          class="relative h-[30px] w-[30px] p-1 rounded-sm text-white flex items-center justify-center bg-indigo-600"
+          >
           <svg width="41" height="41" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg"
             stroke-width="1.5" class="w-6 h-6">
             <path
@@ -20,7 +20,7 @@
       </div>
       <div class="relative flex w-[calc(100%-50px)] md:flex-col lg:w-[calc(100%-115px)]">
         <div class="flex flex-col flex-grow gap-3">
-          <div class="min-h-[20px] flex flex-col items-start gap-4 whitespace-pre-wrap">
+          <div class="min-h-[20px] flex flex-col items-start gap-4">
             <div v-html="marked(text)" class="w-full prose break-words markdown prose-invert">
             </div>
           </div>
