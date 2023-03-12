@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
       model: "gpt-3.5-turbo",
       // @ts-ignore
       messages: messages,
-      max_tokens: 256,
+      max_tokens: 200,
       temperature: 0.5
     });
 
