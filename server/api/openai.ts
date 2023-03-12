@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const openai = new OpenAIApi(configuration);
-    const {q} = getQuery(event)
+    const { q } = getQuery(event)
 
     // let messages = [
     //   {
@@ -30,21 +30,21 @@ export default defineEventHandler(async (event) => {
     //   }
     // ] 
 
-    const prediction = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      // @ts-ignore
-      messages: q.messages,
-      max_tokens: 140,
-      temperature: 0.5
-    });
+    // const prediction = await openai.createChatCompletion({
+    //   model: "gpt-3.5-turbo",
+    //   // @ts-ignore
+    //   messages: q,
+    //   max_tokens: 140,
+    //   temperature: 0.5
+    // });
 
 
 
-    return {
-      message: prediction.data.choices[0].message
-    }
+    // return {
+    //   message: prediction.data.choices[0].message
+    // }
 
-    // return q
+    return q
 
   } catch (err) {
     // @ts-ignore
