@@ -4,13 +4,13 @@
       <ul class="flex flex-row flex-wrap pt-3 pb-0 mb-0 list-none border-b-4 border-zinc-700">
         <li class="mr-2 -mb-px text-center cursor-pointer last:mr-0">
           <a class="block px-5 py-3 text-xs font-bold leading-normal uppercase rounded-t shadow-lg" @click="toggleTabs(1)"
-            :class="{ 'text-zinc-700 bg-white': openTab !== 1, 'text-white bg-zinc-700': openTab === 1 }">
+            :class="{ 'text-zinc-700 bg-white': openTab !== 1, 'text-white bg-zinc-800': openTab === 1 }">
             <i class="mr-1 text-base fas fa-space-shuttle"></i> Settings
           </a>
         </li>
         <li class="mr-2 -mb-px text-center cursor-pointer last:mr-0">
           <a class="block px-5 py-3 text-xs font-bold leading-normal uppercase rounded-t shadow-lg" @click="toggleTabs(2)"
-            :class="{ 'text-zinc-700 bg-white': openTab !== 2, 'text-white bg-zinc-700': openTab === 2 }">
+            :class="{ 'text-zinc-700 bg-white': openTab !== 2, 'text-white bg-zinc-800': openTab === 2 }">
             <i class="mr-1 text-base fas fa-cog"></i> Prompts
           </a>
         </li>

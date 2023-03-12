@@ -4,8 +4,7 @@
     <div class="flex gap-4 p-4 m-auto text-base md:gap-6 md:max-w-2xl lg:max-w-2xl xl:max-w-3xl md:py-6 lg:px-0">
       <div class="w-[30px] flex flex-col relative items-end">
         <div v-if="sender == 'assistant'"
-          class="relative h-[30px] w-[30px] p-1 rounded-sm text-white flex items-center justify-center bg-indigo-600"
-          >
+          class="relative h-[30px] w-[30px] p-1 rounded-sm bg-white flex items-center justify-center text-indigo-600">
           <svg width="41" height="41" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg"
             stroke-width="1.5" class="w-6 h-6">
             <path
@@ -14,7 +13,13 @@
           </svg>
         </div>
         <div v-else
-          class="relative h-[30px] w-[30px] p-1 rounded-full text-white flex items-center justify-center bg-gray-500">
+          class="relative h-[30px] w-[30px] rounded-full text-indigo-600 flex items-center justify-center bg-gray-200">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+            <path fill-rule="evenodd"
+              d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z"
+              clip-rule="evenodd" />
+          </svg>
+
 
         </div>
       </div>
@@ -40,6 +45,7 @@ const props = defineProps(["text", "sender"])
 .markdown pre {
   margin: 0
 }
+
 /* 
 code {
   display: block;

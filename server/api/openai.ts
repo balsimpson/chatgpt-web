@@ -1,7 +1,8 @@
 import { Configuration, OpenAIApi } from "openai"
-// import SSE from "sse"
+// @ts-ignore
+import SSE from "sse"
 // import pkg from '../node_modules/sse/index.js';
-  // const { SSE } = pkg;
+// const { SSE } = pkg;
 export default defineEventHandler(async (event) => {
   try {
     const config = useRuntimeConfig()
@@ -18,7 +19,7 @@ export default defineEventHandler(async (event) => {
     const openai = new OpenAIApi(configuration);
     const { q } = getQuery(event)
     const body = await readBody(event)
-    // console.log("body", body)
+    console.log("body", body)
 
     const messages = body.messages
     let options = body.options
@@ -33,10 +34,17 @@ export default defineEventHandler(async (event) => {
       presence_penalty: options.presence_penalty
     });
 
-    return {
+    const sse = new SSE(event.node.res)
+    sse.send({
       message: prediction.data.choices[0].message,
       usage: prediction.data.usage
-    }
+    })
+    // sse.send({ data: prediction.data.choices[0].message })
+
+    // return {
+    //   message: prediction.data.choices[0].message,
+    //   usage: prediction.data.usage
+    // }
 
   } catch (err) {
     // @ts-ignore

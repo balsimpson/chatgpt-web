@@ -1,7 +1,7 @@
 <template>
-  <div class="relative z-80">
+  <div class="relative max-w-md z-80">
     <input @keyup="findOption($event)" v-model="optionInput" type="text"
-      class="flex items-center w-full px-2 py-1 text-base font-normal border-2 text-zinc-300 placeholder-zinc-600 bg-zinc-800 border-zinc-700 focus:outline-none focus:border-zinc-500 focus-within:border-zinc-500"
+      class="flex items-center w-full px-2 py-1 text-base font-normal border-2 text-zinc-300 placeholder-zinc-600 bg-zinc-800 border-zinc-700 focus:outline-none focus:border-indigo-500 focus-within:border-indigo-500"
       :placeholder="placeholder" :class="[isDefaultOptionsActive ? 'rounded-t' : 'rounded']" />
     <!-- add an icon on the right -->
     <div @click="showDefaultOptions" class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer">
