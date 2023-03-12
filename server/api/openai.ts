@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
     const prediction = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       // @ts-ignore
-      messages: q,
+      messages: q.messages,
       max_tokens: 140,
       temperature: 0.5
     });
