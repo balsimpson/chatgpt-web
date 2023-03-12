@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
       // @ts-ignore
       messages: messages,
       max_tokens: 200,
-      temperature: 0.5
+      temperature: 0.7
     });
 
 
