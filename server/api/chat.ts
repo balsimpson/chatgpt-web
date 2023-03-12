@@ -1,8 +1,5 @@
 import { Configuration, OpenAIApi } from "openai"
-// @ts-ignore
-// import SSE from "sse"
-// import pkg from '../node_modules/sse/index.js';
-// const { SSE } = pkg;
+
 export default defineEventHandler(async (event) => {
   try {
     const config = useRuntimeConfig()
@@ -19,10 +16,10 @@ export default defineEventHandler(async (event) => {
     const openai = new OpenAIApi(configuration);
     const { q } = getQuery(event)
     const body = await readBody(event)
-    console.log("body", JSON.parse(body))
+    console.log("body", body)
 
-    const messages = JSON.parse(body).messages
-    let options = JSON.parse(body).options
+    const messages = body.messages
+    let options = body.options
     // return event.node.req
 
     const prediction = await openai.createChatCompletion({
