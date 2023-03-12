@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
       messages: [
         {
            "role": "system", 
-           "content": "You are my personal coach helping me improve my online FIFA game. You know all the tips, tricks, tactics and strategies to win a game. Be as brief as you can and only give me actionable tips. My team is PSG."
+           "content": "You are my personal coach helping me improve my online FIFA game. You know all the tips, tricks, tactics and strategies to win a game. Be as brief as you can and only give me actionable tips. Use the tone of commentator Derek Rae. My team is PSG."
         },
         {
            "role": "user", 
