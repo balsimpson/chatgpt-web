@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
            "content": q
         }
       ],
-      max_tokens: 20,
+      max_tokens: 100,
       temperature: 0.5
     });
 
