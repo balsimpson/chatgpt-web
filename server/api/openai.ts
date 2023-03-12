@@ -33,18 +33,8 @@ export default defineEventHandler(async (event) => {
     const prediction = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       // @ts-ignore
-      messages: [
-        {
-           "role": "system", 
-           "content": "You are my personal coach helping me improve my online FIFA game. You know all the tips, tricks, tactics and strategies to win a game. Be as brief as you can and give me the tips in a conversational personal coach tone in a movie. My team is PSG."
-        },
-        {
-           "role": "user", 
-          //  @ts-ignore
-           "content": q
-        }
-      ],
-      max_tokens: 100,
+      messages: q,
+      max_tokens: 140,
       temperature: 0.5
     });
 
