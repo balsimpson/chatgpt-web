@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     console.log("q", q)
 
     return {
-      message: "Hello there!" + q
+      message: q
     }
     // const messages = JSON.parse(body).messages
     // let options = JSON.parse(body).options
