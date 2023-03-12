@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     console.log("body", body)
 
-    return event
+    return event.node.req
     // const messages = JSON.parse(body).messages
     // let options = JSON.parse(body).options
     // // return event.node.req
