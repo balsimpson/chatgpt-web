@@ -19,9 +19,11 @@ export default defineEventHandler(async (event) => {
     const openai = new OpenAIApi(configuration);
     const { q } = getQuery(event)
     const body = await readBody(event)
-    console.log("body", body)
+    console.log("q", q)
 
-    return event.node.req
+    return {
+      message: "Hello there!"
+    }
     // const messages = JSON.parse(body).messages
     // let options = JSON.parse(body).options
     // // return event.node.req
