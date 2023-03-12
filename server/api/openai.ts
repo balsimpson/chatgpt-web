@@ -30,30 +30,31 @@ export default defineEventHandler(async (event) => {
     //   }
     // ] 
 
-    // const prediction = await openai.createChatCompletion({
-    //   model: "gpt-3.5-turbo",
-    //   // @ts-ignore
-    //   messages: [
-    //     {
-    //        "role": "system", 
-    //        "content": "You are my personal coach helping me improve my online FIFA game. You know all the tips, tricks, tactics and strategies to win a game. Be concise in your reply, but always helpful. My team is PSG."
-    //     },
-    //     {
-    //        "role": "user", 
-    //        "content": q
-    //     }
-    //   ],
-    //   max_tokens: 256,
-    //   temperature: 0.5
-    // });
+    const prediction = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      // @ts-ignore
+      messages: [
+        {
+           "role": "system", 
+           "content": "You are my personal coach helping me improve my online FIFA game. You know all the tips, tricks, tactics and strategies to win a game. Be concise in your reply, but always helpful. My team is PSG."
+        },
+        {
+           "role": "user", 
+          //  @ts-ignore
+           "content": q
+        }
+      ],
+      max_tokens: 256,
+      temperature: 0.5
+    });
 
 
 
-    // return {
-    //   message: prediction.data.choices[0].message
-    // }
+    return {
+      message: prediction.data.choices[0].message
+    }
 
-    return q
+    // return q
 
   } catch (err) {
     // @ts-ignore
