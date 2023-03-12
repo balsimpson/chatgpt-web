@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
     //   message: prediction.data.choices[0].message
     // }
 
-    return q
+    return {q}
 
   } catch (err) {
     // @ts-ignore
