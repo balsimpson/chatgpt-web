@@ -18,29 +18,32 @@ export default defineEventHandler(async (event) => {
 
     const openai = new OpenAIApi(configuration);
     const q = getQuery(event)
-    // const body = await readBody(event)
-    console.log("q", q)
 
-    return {
-      message: q
-    }
+    let messages = [
+      {
+         "role": "system", 
+         "content": "You are my personal coach helping me improve my online FIFA game. You know all the tips, tricks, tactics and strategies to win a game. Be concise in your reply, but always helpful. My team is PSG."
+      },
+      {
+         "role": "user", 
+         "content": q
+      }
+    ] 
     // const messages = JSON.parse(body).messages
     // let options = JSON.parse(body).options
     // // return event.node.req
 
-    // const prediction = await openai.createChatCompletion({
-    //   model: "gpt-3.5-turbo",
-    //   messages: messages,
-    //   max_tokens: options.max_tokens,
-    //   temperature: options.temperature,
-    //   frequency_penalty: options.frequency_penalty,
-    //   presence_penalty: options.presence_penalty
-    // });
+    const prediction = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      // @ts-ignore
+      messages: messages,
+      max_tokens: 256,
+      temperature: 0.5
+    });
 
-    // return {
-    //   message: prediction.data.choices[0].message,
-    //   usage: prediction.data.usage
-    // }
+    return {
+      message: prediction.data.choices[0].message?.content
+    }
 
   } catch (err) {
     // @ts-ignore
