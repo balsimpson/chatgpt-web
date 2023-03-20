@@ -218,24 +218,21 @@ const getCompletion = async (event) => {
         })
       })
 
-      // console.log("result", data.value);
+      console.log("result", data.value);
 
-      // // @ts-ignore
+      if (data.value && data.value.message) {
+        const res = {
+          "role": "assistant",
+          "content": data.value.message.content.trim(),
+        }
 
-
-      // if (data.value.error) {
-      //   console.log("Error", error)
-      // } else {
-      //   const res = {
-      //     "role": "assistant",
-      //     "content": data.value.message.content.trim(),
-      //   }
-      //   // console.log(res)
-      //   messages.value.push(res)
-      //   saveChat()
-      //   showUsage(data.value.usage)
-      //   localStorage.setItem('gpt3-chat_current', JSON.stringify(messages.value))
-      // }
+        messages.value.push(res)
+        saveChat()
+        // showUsage(data.value.usage)
+        localStorage.setItem('gpt3-chat_current', JSON.stringify(messages.value))
+      } else {
+        console.log("Error: ", data.value)
+      }
 
     } else {
       console.log(event)
@@ -365,7 +362,7 @@ const startChat = async () => {
   messages.value.push(msg)
   messages.value.push(res)
   saveChat()
-  showUsage(data.value.usage)
+  // showUsage(data.value.usage)
   localStorage.setItem('gpt3-chat_current', JSON.stringify(messages.value))
 }
 
