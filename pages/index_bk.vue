@@ -19,9 +19,10 @@
         <p class="max-w-md mb-6 text-sm text-center text-gray-400">Give ChatGPT a persona like <br> Travel Guide or
           Adevrtising
           Agency <br> for a richer conversation and better results.</p>
-        <AppAutocomplete @select="setPersona" @clear="isPersonaActivated = false" class="w-full max-w-md"
-          :options="savedPrompts" placeholder="choose persona" />
-        <button @click="startChat" :disabled="!isPersonaActivated"
+        <AppAutocomplete @select="setPersona" @clear="isPersonaActivated = false"
+          class="w-full max-w-md" :options="savedPrompts" placeholder="choose persona" />
+        <button @click="startChat"
+          :disabled="!isPersonaActivated"
           :class="[isPersonaActivated ? 'opacity-100' : 'opacity-30 pointer-events-none', isActivatingPersona ? 'pointer-events-none animate-pulse' : '']"
           class="px-6 py-1 mt-3 font-semibold tracking-wide transition-colors rounded shrink-0 bg-zinc-400 hover:bg-zinc-100">{{
             startChatBtnTxt }}</button>
@@ -70,11 +71,7 @@
 
             <button @click.prevent="getCompletion"
               class="absolute p-1 rounded-md text-gray-500 right-1 md:bottom-2.5 md:right-2 hover:bg-gray-100 dark:hover:text-gray-400 dark:hover:bg-gray-900 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent">
-              <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
-                stroke-linejoin="round" class="w-4 h-4 mr-1" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-              </svg>
+              <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 mr-1" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
             </button>
           </div>
         </div>
@@ -105,7 +102,6 @@
 
 <script setup>
 import prompts from "~/assets/prompts.json"
-import { Configuration, OpenAIApi } from "openai"
 // @ts-ignore
 // import sse from "sse"
 
@@ -133,11 +129,7 @@ const totalTokens = ref()
 const displayTokenCount = ref("")
 const route = useRoute()
 
-const config = useRuntimeConfig()
-const configuration = new Configuration({
-  apiKey: config.public.OPENAI_KEY,
-});
-const openai = new OpenAIApi(configuration);
+
 useHead({
   title: "MyGPT",
   meta: [
@@ -218,24 +210,21 @@ const getCompletion = async (event) => {
         })
       })
 
-      // console.log("result", data.value);
+      console.log("result", data.value);
 
-      // // @ts-ignore
-
-
-      // if (data.value.error) {
-      //   console.log("Error", error)
-      // } else {
-      //   const res = {
-      //     "role": "assistant",
-      //     "content": data.value.message.content.trim(),
-      //   }
-      //   // console.log(res)
-      //   messages.value.push(res)
-      //   saveChat()
-      //   showUsage(data.value.usage)
-      //   localStorage.setItem('gpt3-chat_current', JSON.stringify(messages.value))
-      // }
+      if (data.value.error) {
+        console.log("Error", error)
+      } else {
+        const res = {
+          "role": "assistant",
+          "content": data.value.message.content.trim(),
+        }
+        // console.log(res)
+        messages.value.push(res)
+        saveChat()
+        showUsage(data.value.usage)
+        localStorage.setItem('gpt3-chat_current', JSON.stringify(messages.value))
+      }
 
     } else {
       console.log(event)
@@ -243,17 +232,6 @@ const getCompletion = async (event) => {
   }
 
 
-}
-
-const getPrediction = async (prompt) => {
-  try {
-    let { data: results, pending: resultsPending, error: resultsError } = await useFetch(`https://chatgpt.cyclic.app/chat?secret=floppyfoxy&prompt=${prompt}`)
-    // console.log("pending", pending.value)
-    // console.log("data", results.value)
-    return results.value
-  } catch (error) {
-    console.log("error:", error)
-  }
 }
 
 const showUsage = (val) => {

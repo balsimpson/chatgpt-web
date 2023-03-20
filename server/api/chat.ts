@@ -1,6 +1,13 @@
 import { Configuration, OpenAIApi } from "openai"
 
+export const config = {
+  runtime: 'edge',
+};
+
 export default defineEventHandler(async (event) => {
+  interface ChatResponse {
+    message: string | undefined;
+  }
   try {
     const config = useRuntimeConfig()
     const configuration = new Configuration({
@@ -14,34 +21,36 @@ export default defineEventHandler(async (event) => {
     }
 
     const openai = new OpenAIApi(configuration);
-    const { q } = getQuery(event)
+    // const { q } = getQuery(event)
     const body = await readBody(event)
-    console.log("body", body)
 
     const messages = body.messages
-    let options = body.options
+    // let options = body.options
     // return event.node.req
+    // console.log("body", messages, options)
 
     const prediction = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: messages,
-      max_tokens: options.max_tokens,
-      temperature: options.temperature,
-      frequency_penalty: options.frequency_penalty,
-      presence_penalty: options.presence_penalty
+      max_tokens: 256
     });
 
-    // const sse = new SSE(event.node.res)
-    // sse.send({
+
+    // console.log("prediction", JSON.stringify(prediction.data.choices[0].message))
+
+    const response: ChatResponse = {
+      // @ts-ignore
+      message: prediction.data.choices[0].message ?? undefined,
+      // @ts-ignore
+      // usage: prediction.data.usage
+    };
+
+    return response;
+
+    // return {
     //   message: prediction.data.choices[0].message,
     //   usage: prediction.data.usage
-    // })
-    // sse.send({ data: prediction.data.choices[0].message })
-
-    return {
-      message: prediction.data.choices[0].message,
-      usage: prediction.data.usage
-    }
+    // }
 
   } catch (err) {
     // @ts-ignore
