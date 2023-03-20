@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col flex-grow h-full w-full bg-[#333541] relative">
-    <div ref="chatContainer" id="container" class="flex-grow flex  overflow-y-auto bg-[#333541] h-full flex-col">
+    <div ref="chatContainer" id="container" class="flex-grow flex  overflow-y-scroll bg-[#333541] h-[calc(100vh_-_200px)] flex-col">
       <AppCard v-if="messages.length" v-for="message in messages" :text="message.content" :sender="message.role"
         :class="[message.role == 'system' ? 'first:hidden' : '']" />
 
@@ -35,7 +35,7 @@
     </div>
 
     <div
-      class="w-full md:border-t-0 border-white/20 md:border-transparent md:bg-vert-light-gradient bg-[#333541] md:bg-vert-dark-gradient">
+      class="w-full md:border-t-0 border-white/20 md:border-transparent bg-[#333541]">
       <div v-if="isShowingUsage" class="flex items-center justify-center pt-2 space-x-4 text-xs uppercase text-zinc-400">
         <div>Prompt <span class="font-bold text-white">{{ usage.prompt_tokens }}</span></div>
         <div>Completion <span class="font-bold text-white">{{ usage.completion_tokens }}</span></div>
@@ -56,6 +56,7 @@
           <span class="ml-1">Save Chat</span></a>
 
       </div>
+
       <form id="question"
         class="flex flex-row gap-3 px-6 pt-1 pb-3 mx-2 stretch last:mb-2 md:last:mb-6 lg:mx-auto lg:max-w-3xl">
         <div class="relative flex flex-1 h-full md:flex-col">
@@ -199,7 +200,6 @@ const getCompletion = async (event) => {
     let frequency_penalty = localStorage.getItem("gpt3-frequency_penalty") || 0
     let presence_penalty = localStorage.getItem("gpt3-presence_penalty") || 0
 
-    console.log(inputText.value.length);
     if (event.code == "Enter" || event.type == "click") {
       textarea.value.style.height = 22 + 'px';
       const msg = {
@@ -218,7 +218,7 @@ const getCompletion = async (event) => {
         })
       })
 
-      console.log("result", data.value);
+      // console.log("result", data.value);
 
       if (data.value && data.value.message) {
         const res = {
@@ -228,7 +228,7 @@ const getCompletion = async (event) => {
 
         messages.value.push(res)
         saveChat()
-        // showUsage(data.value.usage)
+        showUsage(data.value.usage)
         localStorage.setItem('gpt3-chat_current', JSON.stringify(messages.value))
       } else {
         console.log("Error: ", data.value)
@@ -434,7 +434,7 @@ function adjustTextareaHeight(event) {
     textarea.value.style.height = 'auto';
     textarea.value.style.height = textarea.value.scrollHeight + 'px';
   } else {
-    textarea.value.style.height = 30 + 'px';
+    textarea.value.style.height = 22 + 'px';
   }
 }
 </script>
@@ -457,5 +457,4 @@ function adjustTextareaHeight(event) {
 .markdown p {
   margin-bottom: 0.5em;
   margin-top: 0;
-}
-</style>
+}</style>

@@ -36,13 +36,13 @@ export default defineEventHandler(async (event) => {
     });
 
 
-    console.log("prediction", JSON.stringify(prediction.data.choices[0].message))
+    // console.log("prediction", JSON.stringify(prediction.data.choices[0].message))
 
     const response: ChatResponse = {
       // @ts-ignore
       message: prediction.data.choices[0].message ?? undefined,
       // @ts-ignore
-      // usage: prediction.data.usage
+      usage: prediction.data.usage
     };
 
     return response;
