@@ -1,6 +1,8 @@
 <template>
   <div class="bg-[#333541] flex flex-col min-h-screen h-full ">
-    <nav class="flex items-end justify-between w-full max-w-4xl px-8 py-6 mx-auto ">
+    <div class="bg-[#212123]">
+      <nav class="flex items-end justify-between w-full px-4 py-6 mx-auto sm:px-8 md:max-w-2xl lg:max-w-2xl xl:max-w-3xl">
+      
       <NuxtLink to="/" class="flex items-center text-xl font-bold text-stone-400">
         <svg width="300" height="300" viewBox="0 0 300 300" fill="currentColor" xmlns="http://www.w3.org/2000/svg"
           class="w-6 h-6 text-indigo-500">
@@ -35,10 +37,15 @@
         </NuxtLink>
       </div>
     </nav>
+    </div>
     <slot />
   </div>
 </template>
 
 <script setup>
 const totalTokens = ref()
+
+onMounted(( ) => {
+  totalTokens.value = JSON.parse(localStorage.getItem('gpt3-total_tokens')) || 0
+})
 </script>

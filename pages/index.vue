@@ -1,6 +1,7 @@
 <template>
   <div class="flex flex-col flex-grow h-full w-full bg-[#333541] relative">
-    <div ref="chatContainer" id="container" class="flex-grow flex  overflow-y-scroll bg-[#333541] h-[calc(100vh_-_200px)] flex-col">
+    <div ref="chatContainer" id="container"
+      class="flex-grow flex  overflow-y-scroll bg-[#333541] h-[calc(100vh_-_200px)] flex-col">
       <AppCard v-if="messages.length" v-for="message in messages" :text="message.content" :sender="message.role"
         :class="[message.role == 'system' ? 'first:hidden' : '']" />
 
@@ -21,7 +22,7 @@
           Agency <br> for a richer conversation and better results.</p>
         <AppAutocomplete @select="setPersona" @clear="isPersonaActivated = false" class="w-full max-w-md"
           :options="savedPrompts" placeholder="choose persona" />
-        <button @click="startChat" :disabled="!isPersonaActivated"
+        <button @click="startChat(currentPersona)" :disabled="!isPersonaActivated"
           :class="[isPersonaActivated ? 'opacity-100' : 'opacity-30 pointer-events-none', isActivatingPersona ? 'pointer-events-none animate-pulse' : '']"
           class="px-6 py-1 mt-3 font-semibold tracking-wide transition-colors rounded shrink-0 bg-zinc-400 hover:bg-zinc-100">{{
             startChatBtnTxt }}</button>
@@ -34,8 +35,7 @@
       </div>
     </div>
 
-    <div
-      class="w-full md:border-t-0 border-white/20 md:border-transparent bg-[#333541]">
+    <div class="w-full md:border-t-0 border-white/20 md:border-transparent bg-[#333541]">
       <div v-if="isShowingUsage" class="flex items-center justify-center pt-2 space-x-4 text-xs uppercase text-zinc-400">
         <div>Prompt <span class="font-bold text-white">{{ usage.prompt_tokens }}</span></div>
         <div>Completion <span class="font-bold text-white">{{ usage.completion_tokens }}</span></div>
@@ -45,7 +45,7 @@
         class="flex items-center justify-between max-w-xl px-8 pt-2 mx-auto text-xs text-gray-400 uppercase lg:max-w-3xl">
         <button v-if="messages.length" @click.prevent="clearChat" class="uppercase transition hover:text-gray-200">Clear
           chat</button>
-        <a v-if="messages.length" :href="chatDownloadURL" download="myChat.txt"
+        <a v-if="messages.length" :href="chatDownloadURL" download="myChat.pdf"
           class="flex items-center px-2 py-1 transition-colors rounded active:bg-gray-900 hover:bg-gray-900">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
             <path fill-rule="evenodd"
@@ -183,63 +183,54 @@ useHead({
 
 const getCompletion = async (event) => {
   if (inputText.value.length < 3) {
-    // console.log(inputText.value.length);
     return
-  } else {
-    // check if there is a URL in text and is parsable
-    let txt = inputText.value
-    // let txt = await replaceUrlsWithText(inputText.value)
-    // // if not parsable, return error message
-    // if (txt.error) {
-    //   console.log("error parsing URL")
-    //   return
-    // }
-
-    let max_tokens = localStorage.getItem("gpt3-max_tokens") || 256
-    let temperature = localStorage.getItem("gpt3-temperature") || 0.7
-    let frequency_penalty = localStorage.getItem("gpt3-frequency_penalty") || 0
-    let presence_penalty = localStorage.getItem("gpt3-presence_penalty") || 0
-
-    if (event.code == "Enter" || event.type == "click") {
-      textarea.value.style.height = 22 + 'px';
-      const msg = {
-        "role": "user",
-        "content": txt,
-        // "content": inputText.value,
-      }
-      inputText.value = ""
-      messages.value.push(msg)
-
-      let { data } = await useFetch(`/api/chat`, {
-        method: "POST",
-        body: JSON.stringify({
-          messages: messages.value,
-          options: { max_tokens, temperature, frequency_penalty, presence_penalty }
-        })
-      })
-
-      // console.log("result", data.value);
-
-      if (data.value && data.value.message) {
-        const res = {
-          "role": "assistant",
-          "content": data.value.message.content.trim(),
-        }
-
-        messages.value.push(res)
-        saveChat()
-        showUsage(data.value.usage)
-        localStorage.setItem('gpt3-chat_current', JSON.stringify(messages.value))
-      } else {
-        console.log("Error: ", data.value)
-      }
-
-    } else {
-      console.log(event)
-    }
   }
 
+  // check if there is a URL in text and is parsable
+  let txt = inputText.value
+  // let txt = await replaceUrlsWithText(inputText.value)
+  // // if not parsable, return error message
+  // if (txt.error) {
+  //   console.log("error parsing URL")
+  //   return
+  // }
 
+  const { max_tokens, temperature, frequency_penalty, presence_penalty } = getFromLocalStorage()
+
+  if (event.code == "Enter" || event.type == "click") {
+    textarea.value.style.height = 22 + 'px';
+    const msg = {
+      "role": "user",
+      "content": txt,
+      // "content": inputText.value,
+    }
+    inputText.value = ""
+    messages.value.push(msg)
+
+    let { data } = await useFetch(`/api/chat`, {
+      method: "POST",
+      body: JSON.stringify({
+        messages: messages.value,
+        options: { max_tokens, temperature, frequency_penalty, presence_penalty }
+      })
+    })
+
+    // console.log("result", data.value);
+
+    if (data.value && data.value.message) {
+      const res = {
+        "role": "assistant",
+        "content": data.value.message.content.trim(),
+      }
+
+      messages.value.push(res)
+      saveChat()
+      showUsage(data.value.usage)
+      localStorage.setItem('gpt3-chat_current', JSON.stringify(messages.value))
+    } else {
+      console.log("Error: ", data.value)
+    }
+  }
 }
 
 const getPrediction = async (prompt) => {
@@ -251,6 +242,15 @@ const getPrediction = async (prompt) => {
   } catch (error) {
     console.log("error:", error)
   }
+}
+
+const getFromLocalStorage = () => {
+  let max_tokens = localStorage.getItem("gpt3-max_tokens") || 256
+  let temperature = localStorage.getItem("gpt3-temperature") || 0.7
+  let frequency_penalty = localStorage.getItem("gpt3-frequency_penalty") || 0
+  let presence_penalty = localStorage.getItem("gpt3-presence_penalty") || 0
+
+  return { max_tokens, temperature, frequency_penalty, presence_penalty }
 }
 
 const showUsage = (val) => {
@@ -272,7 +272,8 @@ const saveChat = () => {
     txt += messages.value[i].role + ": " + messages.value[i].content + "\n"
   }
 
-  let myBlob = new Blob([txt], { type: "text/plain" });
+  // let myBlob = new Blob([txt], { type: "text/plain" });
+  let myBlob = new Blob([txt], { type: "application/octetstream" });
   chatDownloadURL.value = window.URL.createObjectURL(myBlob);
 }
 
@@ -329,21 +330,21 @@ const setPersona = (persona) => {
   currentPersona.value = persona;
 }
 
-const startChat = async () => {
+const startChat = async (persona) => {
+
+  console.log("persona", persona);
   isActivatingPersona.value = true
   startChatBtnTxt.value = "Starting..."
-  let max_tokens = localStorage.getItem("gpt3-max_tokens") || 256
-  let temperature = localStorage.getItem("gpt3-temperature") || 0.7
-  let frequency_penalty = localStorage.getItem("gpt3-frequency_penalty") || 0
-  let presence_penalty = localStorage.getItem("gpt3-presence_penalty") || 0
+  
+  const { max_tokens, temperature, frequency_penalty, presence_penalty } = getFromLocalStorage()
 
   const msg = {
     "role": "system",
-    "content": currentPersona.value.content,
+    "content": persona.content,
   }
 
 
-  let { data } = await useFetch(`/api/openai`, {
+  let { data } = await useFetch(`/api/chat`, {
     method: "POST",
     body: JSON.stringify({
       messages: [msg],
@@ -353,6 +354,8 @@ const startChat = async () => {
 
   startChatBtnTxt.value = 'Start chat'
   isActivatingPersona.value = false
+
+  console.log("data", data.value);
 
   const res = {
     "role": "assistant",
@@ -397,7 +400,7 @@ async function replaceUrlsWithText(text) {
 onMounted(async () => {
 
   savedPrompts.value = JSON.parse(localStorage.getItem("gpt3-prompts")) || prompts
-  // let { p: persona } = route.query
+  
   // console.log('persona', persona)
   // let allPrompts = await JSON.parse(localStorage.getItem('gpt3-prompts')) || prompts
   // console.log('persona', persona)
@@ -427,6 +430,19 @@ onMounted(async () => {
   // Tell it to look for new children that will change the height.
   let config = { childList: true };
   observer.observe(chatContainer.value, config);
+
+  let { p } = route.query
+
+  if (p) {
+    console.log(p);
+    let searchByContent = fuzzy(savedPrompts.value, 'content')
+    let _persona = searchByContent(p)
+    // console.log(p, _persona[0]);
+    if (_persona.length > 0) {
+      _persona = _persona[0]
+      await startChat(_persona)
+    }
+  }
 })
 
 function adjustTextareaHeight(event) {
@@ -457,4 +473,5 @@ function adjustTextareaHeight(event) {
 .markdown p {
   margin-bottom: 0.5em;
   margin-top: 0;
-}</style>
+}
+</style>

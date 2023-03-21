@@ -1,7 +1,7 @@
 <template>
   <div class="w-full text-gray-800 border-b border-gray-900/50 group "
     :class="[sender == 'assistant' ? 'bg-[#444654]' : 'bg-[#333541]']">
-    <div class="flex gap-4 p-4 m-auto text-base md:gap-6 md:max-w-2xl lg:max-w-2xl xl:max-w-3xl md:py-6 lg:px-0">
+    <div class="flex gap-4 p-4 m-auto text-base sm:px-8 md:gap-6 md:max-w-2xl lg:max-w-2xl xl:max-w-3xl md:py-6 ">
       <div class="w-[30px] flex flex-col relative items-end">
         <div v-if="sender == 'assistant'"
           class="relative h-[30px] w-[30px] p-1 rounded-sm bg-white flex items-center justify-center text-indigo-600">
@@ -19,8 +19,6 @@
               d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z"
               clip-rule="evenodd" />
           </svg>
-
-
         </div>
       </div>
       <div class="relative flex w-[calc(100%-50px)] md:flex-col lg:w-[calc(100%-115px)]">
