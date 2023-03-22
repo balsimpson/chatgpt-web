@@ -41,19 +41,29 @@
         <div>Completion <span class="font-bold text-white">{{ usage.completion_tokens }}</span></div>
         <div>Total <span class="font-bold text-white">{{ usage.total_tokens }}</span></div>
       </div>
-      <div v-else
-        class="flex items-center justify-between max-w-xl px-8 pt-2 mx-auto text-xs text-gray-400 uppercase lg:max-w-3xl">
-        <button v-if="messages.length" @click.prevent="clearChat" class="uppercase transition hover:text-gray-200">Clear
-          chat</button>
-        <a v-if="messages.length" :href="chatDownloadURL" download="myChat.pdf"
-          class="flex items-center px-2 py-1 transition-colors rounded active:bg-gray-900 hover:bg-gray-900">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
-            <path fill-rule="evenodd"
-              d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-.53 14.03a.75.75 0 001.06 0l3-3a.75.75 0 10-1.06-1.06l-1.72 1.72V8.25a.75.75 0 00-1.5 0v5.69l-1.72-1.72a.75.75 0 00-1.06 1.06l3 3z"
-              clip-rule="evenodd" />
+      <div v-else class="flex justify-center max-w-xl px-8 pt-2 mx-auto text-xs text-gray-400 lg:max-w-3xl">
+        <div v-if="errorMsg"
+          class="inline-flex items-center justify-center px-3 py-1 text-center border border-red-500 rounded bg-red-300/20">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
           </svg>
+          <span class="ml-3">{{ errorMsg }}</span>
+        </div>
+        <div v-else class="flex items-center justify-between w-full">
+          <button @click.prevent="clearChat" class="uppercase transition hover:text-gray-200">Clear
+            chat</button>
+          <a :href="chatDownloadURL" download="myChat.pdf"
+            class="flex items-center px-2 py-1 transition-colors rounded active:bg-gray-900 hover:bg-gray-900">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+              <path fill-rule="evenodd"
+                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-.53 14.03a.75.75 0 001.06 0l3-3a.75.75 0 10-1.06-1.06l-1.72 1.72V8.25a.75.75 0 00-1.5 0v5.69l-1.72-1.72a.75.75 0 00-1.06 1.06l3 3z"
+                clip-rule="evenodd" />
+            </svg>
 
-          <span class="ml-1">Save Chat</span></a>
+            <span class="ml-1 uppercase">Save Chat</span></a>
+        </div>
 
       </div>
 
@@ -64,7 +74,7 @@
           <div
             class="flex flex-col w-full pb-2 flex-grow py-3  relative border border-gray-900/50 text-white bg-[#40414f] rounded-md shadow-[0_0_15px_rgba(0,0,0,0.10)]">
 
-            <textarea @keyup.enter.prevent="getCompletion" @input="adjustTextareaHeight" ref="textarea" tabindex="0"
+            <textarea @keydown.enter.prevent="getCompletion" @input="adjustTextareaHeight" ref="textarea" tabindex="0"
               rows="1" placeholder=""
               class="w-full p-0 pl-2 m-0 bg-transparent border-0 resize-none pr-7 focus:ring-0 focus-visible:ring-0 dark:bg-transparent focus:outline-none"
               v-model="inputText"></textarea>
@@ -112,8 +122,9 @@ import { Configuration, OpenAIApi } from "openai"
 
 const savedPrompts = ref([])
 const textarea = ref()
-const inputText = ref('');
-const completion = ref('');
+const inputText = ref('')
+const completion = ref('')
+const errorMsg = ref("")
 
 const isPersonaActivated = ref(false)
 const isActivatingPersona = ref(false)
@@ -134,11 +145,6 @@ const totalTokens = ref()
 const displayTokenCount = ref("")
 const route = useRoute()
 
-const config = useRuntimeConfig()
-const configuration = new Configuration({
-  apiKey: config.public.OPENAI_KEY,
-});
-const openai = new OpenAIApi(configuration);
 useHead({
   title: "MyGPT",
   meta: [
@@ -194,6 +200,20 @@ const getCompletion = async (event) => {
   //   console.log("error parsing URL")
   //   return
   // }
+
+  // check if token count exceeds 1000
+  let { tokens } = await getTokenCount(txt)
+
+  if (tokens > 1000) {
+    // show error message
+    errorMsg.value = `The conversation is ${tokens} tokens and exceeds the limit!`
+
+    setTimeout(() => {
+      errorMsg.value = ""
+    }, 4000);
+
+    return
+  }
 
   const { max_tokens, temperature, frequency_penalty, presence_penalty } = getFromLocalStorage()
 
@@ -335,7 +355,7 @@ const startChat = async (persona) => {
   console.log("persona", persona);
   isActivatingPersona.value = true
   startChatBtnTxt.value = "Starting..."
-  
+
   const { max_tokens, temperature, frequency_penalty, presence_penalty } = getFromLocalStorage()
 
   const msg = {
@@ -397,10 +417,27 @@ async function replaceUrlsWithText(text) {
   return text;
 }
 
+const getTokenCount = async (txt) => {
+
+  let allMsgs = messages.value || [];
+  allMsgs.push({
+    "role": "user",
+    "content": txt
+  })
+  let { data } = await useFetch('/api/tokencounter', {
+    method: 'POST',
+    body: JSON.stringify({
+      messages: allMsgs
+    })
+  })
+
+  return data.value
+}
+
 onMounted(async () => {
 
   savedPrompts.value = JSON.parse(localStorage.getItem("gpt3-prompts")) || prompts
-  
+
   // console.log('persona', persona)
   // let allPrompts = await JSON.parse(localStorage.getItem('gpt3-prompts')) || prompts
   // console.log('persona', persona)
@@ -412,6 +449,8 @@ onMounted(async () => {
   //   selectedPersonaTitle.value = prompt[0].title
   //   isPersonaActivated.value = true
   // }
+
+
 
   totalTokens.value = JSON.parse(localStorage.getItem("gpt3-total_tokens")) || 0
 
