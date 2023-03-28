@@ -21,13 +21,13 @@ export default defineEventHandler(async (event) => {
     // const { q } = getQuery(event)
     const body = await readBody(event)
     const prompt = body.prompt
-
-    console.log(prompt)
+    const size = body.size || 256
 
     const res = await openai.createImage({
       prompt: prompt,
       n: 1,
-      size: "256x256",
+      // @ts-ignore
+      size: `${size}x${size}`,
     });
 
     // console.log(res.data)
@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
 
   } catch (err) {
     // @ts-ignore
-    console.log("error", err.message)
+    console.log("error", err)
     return err
   }
 })

@@ -23,7 +23,7 @@
           <label for="hs-feedback-post-comment-name-1" class="block mb-2 text-xl font-medium text-white">Dall.E Image size</label>
           <select @change="updateSettings({ displayValue: dalleImgSize, title: 'Dall.E Image Size' })" v-model="dalleImgSize"
             class="w-full px-3 py-4 rounded bg-stone-900 text-stone-300 focus:outline-none focus:ring-1 focus:ring-amber-600">
-            <option v-for="size in imgsizes" :key="size" :value="size">{{ size }}</option>
+            <option v-for="size in imgsizes" :key="size" :value="size">{{ `${size}x${size}` }}</option>
           </select>
           <div class="pt-3 text-xs tracking-wide text-white/30">Choose the size of the Dall.E image.</div>
         </div>
@@ -77,11 +77,7 @@ const isAddPrompt = ref(false)
 const isEditingPrompt = ref(false)
 const totalTokens = ref()
 
-const imgsizes = [
-  '256x256',
-  '512x512',
-  '1024x1024'
-]
+const imgsizes = [ 256, 512, 1024 ]
 
 const selectedModel = ref(null)
 const dalleImgSize = ref(null)
@@ -167,7 +163,7 @@ onMounted(async () => {
     filteredPrompts.value = prompts
   }
 
-  dalleImgSize.value = await JSON.parse(localStorage.getItem('gpt3-dalle_imgsize')) || '256x256';
+  dalleImgSize.value = await JSON.parse(localStorage.getItem('gpt3-dalle_imgsize')) || 256;
   maxTokens.value = await JSON.parse(localStorage.getItem('gpt3-max_tokens')) || 256;
   temperature.value = await JSON.parse(localStorage.getItem('gpt3-temperature')) || 0.5;
 

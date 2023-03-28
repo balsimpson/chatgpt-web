@@ -45,7 +45,7 @@ function onChange(e) {
 }
 
 onMounted(() => {
-  if (props.status == "published") {
+  if (props.status == "on") {
     inputState.value = true;
     displayText.value = props.checked;
   } else {

@@ -68,7 +68,7 @@
 
           <div class="flex">
             <span class="mr-2">Dall.E</span>
-            <ToggleSwitch @toggled="isDalleOn = !isDalleOn" />
+            <ToggleSwitch :status="isDalleOn" @toggled="handleDalle($event)" />
           </div>
         </div>
 
@@ -204,11 +204,19 @@ useHead({
   ],
 });
 
+const handleDalle = (event) => {
+  console.log("event", event);
+  isDalleOn.value = event
+  localStorage.setItem('gpt3-is_dalle_on', JSON.stringify(isDalleOn.value))
+}
+
 const getImage = async (prompt) => {
+  const { dalleImgSize } = getFromLocalStorage()
   let { data } = await useFetch(`/api/image`, {
     method: "POST",
     body: JSON.stringify({
       prompt: prompt,
+      size: dalleImgSize
     })
   })
 
@@ -222,12 +230,13 @@ const getImage = async (prompt) => {
 
 const getText = async (prompt, messages, role) => {
 
-  let newArray;
+  let newArray = [];
   if (role !== "system") {
     messages.push({
       "role": role,
       "content": prompt
     })
+    newArray = messages.filter(obj => obj.role !== "dall.e");
   } else {
     // if system message
     // remove dall.e messages
@@ -305,11 +314,9 @@ const promptHandler = async (event) => {
 
 const getFromLocalStorage = () => {
   let max_tokens = localStorage.getItem("gpt3-max_tokens") || 256
-  let temperature = localStorage.getItem("gpt3-temperature") || 0.7
-  let frequency_penalty = localStorage.getItem("gpt3-frequency_penalty") || 0
-  let presence_penalty = localStorage.getItem("gpt3-presence_penalty") || 0
+  let dalleImgSize = localStorage.getItem("gpt3-dalle_imgsize") || "256x256"
 
-  return { max_tokens, temperature, frequency_penalty, presence_penalty }
+  return { max_tokens, dalleImgSize }
 }
 
 const showUsage = (val) => {
@@ -454,6 +461,7 @@ const initApp = () => {
   savedPrompts.value = JSON.parse(localStorage.getItem("gpt3-prompts")) || prompts
   totalTokens.value = JSON.parse(localStorage.getItem("gpt3-total_tokens")) || 0
   messages.value = JSON.parse((localStorage.getItem("gpt3-chat_current"))) || []
+  isDalleOn.value = JSON.parse((localStorage.getItem("gpt3-is_dalle_on"))) || "off"
   saveChat(messages.value)
 }
 
