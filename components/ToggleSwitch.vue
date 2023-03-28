@@ -33,7 +33,6 @@ const displayText = ref("");
 
 function onChange(e) {
   inputState.value = e.target.checked;
-  console.log(inputState.value, displayText.value);
 
   if (e.target.checked) {
     displayText.value = props.checked;
@@ -41,7 +40,7 @@ function onChange(e) {
     displayText.value = props.unchecked;
   }
 
-  emit("toggled", inputState.value ? "on": "off");
+  emit("toggled", inputState.value ? true : false);
 }
 
 onMounted(() => {

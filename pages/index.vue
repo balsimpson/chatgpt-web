@@ -461,7 +461,7 @@ const initApp = () => {
   savedPrompts.value = JSON.parse(localStorage.getItem("gpt3-prompts")) || prompts
   totalTokens.value = JSON.parse(localStorage.getItem("gpt3-total_tokens")) || 0
   messages.value = JSON.parse((localStorage.getItem("gpt3-chat_current"))) || []
-  isDalleOn.value = JSON.parse((localStorage.getItem("gpt3-is_dalle_on"))) || "off"
+  isDalleOn.value = JSON.parse((localStorage.getItem("gpt3-is_dalle_on"))) || false
   saveChat(messages.value)
 }
 
