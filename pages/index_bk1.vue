@@ -2,8 +2,8 @@
   <div class="flex flex-col flex-grow h-full w-full bg-[#333541] relative">
     <div ref="chatContainer" id="container"
       class="flex-grow flex  overflow-y-scroll bg-[#333541] h-[calc(100vh_-_200px)] flex-col">
-      <AppCard v-if="messages.length" v-for="(message, index) in messages" :key="index" :content="message.content"
-        :sender="message.role" :class="[message.role == 'system' ? 'first:hidden' : '']" />
+      <AppCard v-if="messages.length" v-for="message in messages" :content="message.content" :sender="message.role"
+        :class="[message.role == 'system' ? 'first:hidden' : '']" />
 
       <div v-else class="flex flex-col items-center justify-center w-full h-full px-4 pt-12">
         <div class="py-3 text-gray-400">
@@ -68,7 +68,7 @@
 
           <div class="flex">
             <span class="mr-2">Dall.E</span>
-            <ToggleSwitch @toggled="isDalleOn = !isDalleOn" />
+            <ToggleSwitch @toggled="isDalleOn = !isDalleOn"/>
           </div>
         </div>
 
@@ -81,12 +81,12 @@
           <div
             class="flex flex-col w-full pb-2 flex-grow py-3  relative border border-gray-900/50 text-white bg-[#40414f] rounded-md shadow-[0_0_15px_rgba(0,0,0,0.10)]">
 
-            <textarea @keydown.enter.prevent="promptHandler" @input="adjustTextareaHeight" ref="textarea" tabindex="0"
-              rows="1" placeholder=""
+            <textarea @keydown.enter.prevent="getImage" @input="adjustTextareaHeight" ref="textarea" tabindex="0" rows="1"
+              placeholder=""
               class="w-full p-0 pl-2 m-0 bg-transparent border-0 resize-none pr-7 focus:ring-0 focus-visible:ring-0 dark:bg-transparent focus:outline-none"
               v-model="inputText"></textarea>
 
-            <button @click.prevent="promptHandler"
+            <button @click.prevent="getCompletion"
               class="absolute p-1 rounded-md text-gray-500 right-1 md:bottom-2.5 md:right-2  hover:text-gray-400 hover:bg-gray-900  disabled:hover:bg-transparent">
 
               <svg v-if="isDalleOn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -204,41 +204,41 @@ useHead({
   ],
 });
 
-const getImage = async (prompt) => {
+const getImage = async () => {
   let { data } = await useFetch(`/api/image`, {
     method: "POST",
     body: JSON.stringify({
-      prompt: prompt,
+      prompt: inputText.value,
     })
   })
+
+  console.log("image", data.value);
 
   const msg = {
     "role": "dall.e",
     "content": `${data.value.url}::${data.value.prompt}`
   }
 
-  return msg;
+  messages.value.push(msg)
 }
 
-const getText = async (prompt, messages, role) => {
-
-  let newArray;
-  if (role !== "system") {
-    messages.push({
-      "role": role,
-      "content": prompt
-    })
-  } else {
-    // if system message
-    // remove dall.e messages
-    newArray = messages.filter(obj => obj.role !== "dall.e");
-    newArray.push({
-      "role": role,
-      "content": prompt
-    })
+const getCompletion = async (event) => {
+  if (inputText.value.length < 2) {
+    return
   }
 
-  let { tokens } = await getTokenCount(prompt)
+  // check if there is a URL in text and is parsable
+  let txt = inputText.value
+  // let txt = await replaceUrlsWithText(inputText.value)
+  // // if not parsable, return error message
+  // if (txt.error) {
+  //   console.log("error parsing URL")
+  //   return
+  // }
+
+  // check if token count exceeds 1000
+  let { tokens } = await getTokenCount(txt)
+
   if (tokens > 1000) {
     // show error message
     errorMsg.value = `The conversation is ${tokens} tokens and exceeds the limit!`
@@ -246,61 +246,58 @@ const getText = async (prompt, messages, role) => {
     setTimeout(() => {
       errorMsg.value = ""
     }, 4000);
+
     return
   }
 
-  const { max_tokens } = getFromLocalStorage()
-  let { data } = await useFetch(`/api/chat`, {
-    method: "POST",
-    body: JSON.stringify({
-      messages: newArray,
-      options: { max_tokens }
-    })
-  })
+  const { max_tokens, temperature, frequency_penalty, presence_penalty } = getFromLocalStorage()
 
-  if (data.value && data.value.message) {
-    if (role == "system") {
-      messages.push({
-        "role": role,
-        "content": prompt
+  if (event.code == "Enter" || event.type == "click") {
+    textarea.value.style.height = 22 + 'px';
+    const msg = {
+      "role": "user",
+      "content": txt,
+      // "content": inputText.value,
+    }
+    inputText.value = ""
+    messages.value.push(msg)
+
+    let { data } = await useFetch(`/api/chat`, {
+      method: "POST",
+      body: JSON.stringify({
+        messages: messages.value,
+        options: { max_tokens, temperature, frequency_penalty, presence_penalty }
       })
-    }
-    const completion = {
-      "role": "assistant",
-      "content": data.value.message.content.trim(),
-    }
+    })
 
-    return { completion, usage: data.value.usage };
-  } else {
-    console.log("Error: ", data.value)
-    return data.value
+    // console.log("result", data.value);
+
+    if (data.value && data.value.message) {
+      const res = {
+        "role": "assistant",
+        "content": data.value.message.content.trim(),
+      }
+
+      messages.value.push(res)
+
+      saveChat()
+      showUsage(data.value.usage)
+      localStorage.setItem('gpt3-chat_current', JSON.stringify(messages.value))
+    } else {
+      console.log("Error: ", data.value)
+    }
   }
-
 }
 
-const promptHandler = async (event) => {
-  if (inputText.value.length < 2) {
-    return
+const getPrediction = async (prompt) => {
+  try {
+    let { data: results, pending: resultsPending, error: resultsError } = await useFetch(`https://chatgpt.cyclic.app/chat?secret=floppyfoxy&prompt=${prompt}`)
+    // console.log("pending", pending.value)
+    // console.log("data", results.value)
+    return results.value
+  } catch (error) {
+    console.log("error:", error)
   }
-
-  let txt = inputText.value
-  inputText.value = ""
-  textarea.value.style.height = 'auto';
-
-  let msg;
-
-  if (isDalleOn.value) {
-    msg = await getImage(txt)
-  } else {
-    let { completion, usage } = await getText(txt, messages.value, "user")
-
-    msg = completion
-    showUsage(usage)
-  }
-
-  messages.value.push(msg)
-  saveChat(messages.value)
-
 }
 
 const getFromLocalStorage = () => {
@@ -322,19 +319,18 @@ const showUsage = (val) => {
   incrementTokenCount(usage.value.total_tokens)
 }
 
-const saveChat = (messages) => {
+const saveChat = () => {
 
   let txt = ""
 
-  for (let i = 0; i < messages.length; i++) {
+  for (let i = 0; i < messages.value.length; i++) {
     // console.log((messages))
-    txt += messages[i].role + ": " + messages[i].content + "\n"
+    txt += messages.value[i].role + ": " + messages.value[i].content + "\n"
   }
 
   let myBlob = new Blob([txt], { type: "text/plain" });
   // let myBlob = new Blob([txt], { type: "application/octetstream" });
   chatDownloadURL.value = window.URL.createObjectURL(myBlob);
-  localStorage.setItem('gpt3-chat_current', JSON.stringify(messages))
 }
 
 const clearChat = () => {
@@ -392,17 +388,41 @@ const setPersona = (persona) => {
 
 const startChat = async (persona) => {
 
-  // console.log("persona", persona);
+  console.log("persona", persona);
   isActivatingPersona.value = true
   startChatBtnTxt.value = "Starting..."
 
-  let { completion, usage } = await getText(persona.content, messages.value, "system")
+  const { max_tokens, temperature, frequency_penalty, presence_penalty } = getFromLocalStorage()
+
+  const msg = {
+    "role": "system",
+    "content": persona.content,
+  }
+
+
+  let { data } = await useFetch(`/api/chat`, {
+    method: "POST",
+    body: JSON.stringify({
+      messages: [msg],
+      options: { max_tokens, temperature, frequency_penalty, presence_penalty }
+    })
+  })
 
   startChatBtnTxt.value = 'Start chat'
   isActivatingPersona.value = false
 
-  messages.value.push(completion)
-  saveChat(messages.value)
+  console.log("data", data.value);
+
+  const res = {
+    "role": "assistant",
+    "content": data.value.message.content.trim(),
+  }
+
+  messages.value.push(msg)
+  messages.value.push(res)
+  saveChat()
+  // showUsage(data.value.usage)
+  localStorage.setItem('gpt3-chat_current', JSON.stringify(messages.value))
 }
 
 async function replaceUrlsWithText(text) {
@@ -450,26 +470,25 @@ const getTokenCount = async (txt) => {
   return data.value
 }
 
-const initApp = () => {
-  savedPrompts.value = JSON.parse(localStorage.getItem("gpt3-prompts")) || prompts
-  totalTokens.value = JSON.parse(localStorage.getItem("gpt3-total_tokens")) || 0
-  messages.value = JSON.parse((localStorage.getItem("gpt3-chat_current"))) || []
-  saveChat(messages.value)
-}
-
-const activatePersona = async () => {
-  let searchByContent = fuzzy(savedPrompts.value, 'content')
-  let _persona = searchByContent(p)
-  // console.log(p, _persona[0]);
-  if (_persona.length > 0) {
-    _persona = _persona[0]
-    await startChat(_persona)
-  }
-}
-
 onMounted(async () => {
 
-  initApp()
+  savedPrompts.value = JSON.parse(localStorage.getItem("gpt3-prompts")) || prompts
+
+  // console.log('persona', persona)
+  // let allPrompts = await JSON.parse(localStorage.getItem('gpt3-prompts')) || prompts
+  // console.log('persona', persona)
+  // let searchByContent = fuzzy(allPrompts, 'content')
+  // let prompt = searchByContent(persona)
+  // console.log('prompt', prompt);
+  // if (prompt.length > 0) {
+  //   currentPersona.value = prompt[0]
+  //   selectedPersonaTitle.value = prompt[0].title
+  //   isPersonaActivated.value = true
+  // }
+
+
+
+  totalTokens.value = JSON.parse(localStorage.getItem("gpt3-total_tokens")) || 0
 
   const env = useRuntimeConfig()
   if (!env.public?.OPENAI_KEY) {
@@ -478,7 +497,9 @@ onMounted(async () => {
   }
 
   isValidAPIKey.value = true;
-
+  // localStorage.setItem("gpt3-total_tokens", 0)
+  messages.value = JSON.parse((localStorage.getItem("gpt3-chat_current"))) || []
+  saveChat()
   // Create an observer and pass it a callback.
   let observer = new MutationObserver(scrollToBottom);
   // Tell it to look for new children that will change the height.
@@ -486,8 +507,16 @@ onMounted(async () => {
   observer.observe(chatContainer.value, config);
 
   let { p } = route.query
+
   if (p) {
-    activatePersona(p)
+    console.log(p);
+    let searchByContent = fuzzy(savedPrompts.value, 'content')
+    let _persona = searchByContent(p)
+    // console.log(p, _persona[0]);
+    if (_persona.length > 0) {
+      _persona = _persona[0]
+      await startChat(_persona)
+    }
   }
 })
 
