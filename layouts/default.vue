@@ -18,11 +18,11 @@
         </span>
       </NuxtLink>
 
+      <pre>{{ totalTokens }}</pre>
+
       <div class="flex items-end space-x-6">
         <div v-if="totalTokens" class="text-right text-zinc-400">
-          <div class="text-xs font-semibold">{{ new Intl.NumberFormat('en-US', {
-            maximumSignificantDigits: 3
-          }).format(totalTokens) }}</div>
+          <div class="text-xs font-semibold">{{ totalTokens }}</div>
           <div class="text-xs text-zinc-500">tokens used</div>
         </div>
         <NuxtLink to="/settings" id="settings"
@@ -44,6 +44,10 @@
 
 <script setup>
 import { useStorage } from '@vueuse/core'
-const totalTokens = useStorage('gpt3-total_tokens', 0)
-// const totalTokens = ref()
+const totalTokens = computed(() => useStorage('gpt3-total_tokens')) 
+// const totalTokens = ref(0)
+
+// watchEffect(() => {
+//   totalTokens.value = useStorage('gpt3-total_tokens')
+// })
 </script>
