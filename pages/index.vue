@@ -247,17 +247,6 @@ const getText = async (prompt, messages, role) => {
     })
   }
 
-  let { tokens } = await getTokenCount(prompt)
-  if (tokens > 1000) {
-    // show error message
-    errorMsg.value = `The conversation is ${tokens} tokens and exceeds the limit!`
-
-    setTimeout(() => {
-      errorMsg.value = ""
-    }, 4000);
-    return
-  }
-
   const { max_tokens } = getFromLocalStorage()
   let { data } = await useFetch(`/api/chat`, {
     method: "POST",
@@ -438,23 +427,6 @@ async function replaceUrlsWithText(text) {
   }
 
   return text;
-}
-
-const getTokenCount = async (txt) => {
-
-  let allMsgs = [...messages.value];
-  allMsgs.push({
-    "role": "user",
-    "content": txt
-  })
-  let { data } = await useFetch('/api/tokencounter', {
-    method: 'POST',
-    body: JSON.stringify({
-      messages: allMsgs
-    })
-  })
-
-  return data.value
 }
 
 const initApp = () => {
