@@ -1,14 +1,14 @@
 <template>
-  <div class="border rounded border-stone-600 text-stone-400">
+  <div class="border rounded bg-stone-900 border-stone-800 text-stone-400">
     <div v-if="!isEditingPrompt" class="p-4">
       <div class="text-xl font-bold">{{ prompt.title }}</div>
       <p>{{ prompt.content }}</p>
     </div>
     <div v-else class="p-4">
       <input v-model="prompt.title" type="text"
-        class="block w-full px-4 py-3 rounded-md focus:border-amber-500 focus:ring-amber-500 sm:p-4 bg-stone-900 border-stone-700 text-stone-400">
+        class="block w-full px-4 py-3 rounded-md focus:border-amber-500 focus:ring-amber-500 sm:p-4 bg-zinc-800 border-stone-700 text-stone-400">
       <textarea v-model="prompt.content" rows="4"
-        class="block w-full px-4 py-3 mt-2 rounded-md focus:border-amber-500 focus:ring-amber-500 sm:p-4 bg-stone-900 border-stone-700 text-stone-400">
+        class="block w-full px-4 py-3 mt-2 rounded-md focus:border-amber-500 focus:ring-amber-500 sm:p-4 bg-zinc-800 border-stone-700 text-stone-400">
                             </textarea>
     </div>
 
@@ -25,6 +25,10 @@
       
       <div v-else class="space-x-8">
 
+        <button @click.prevent="isEditingPrompt = !isEditingPrompt"
+          class="text-stone-500"
+          >Cancel</button>
+          
         <button @click.prevent="emit('delete',
           {
             title: prompt.title,

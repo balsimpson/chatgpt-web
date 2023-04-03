@@ -15,6 +15,7 @@
     "@tailwindcss/typography": "^0.5.9",
     "@vueuse/core": "^9.13.0",
     "marked": "^4.2.12",
+    "newspaperjs": "^1.0.8",
     "openai": "^3.2.1"
   }
 }

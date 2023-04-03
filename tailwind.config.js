@@ -16,6 +16,7 @@ module.exports = {
       fontFamily: {
         arvo: ["Arvo", "serif"],
         lora: ["Lora", "serif"],
+        merri: ["Merriweather", "serif"],
        },
        transitionProperty: {
         'width': 'width'

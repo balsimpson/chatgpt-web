@@ -79,18 +79,29 @@
         <div class="relative flex flex-1 h-full md:flex-col">
 
           <div
-            class="flex flex-col w-full pb-2 flex-grow py-3  relative border border-gray-900/50 text-white bg-[#40414f] rounded-md shadow-[0_0_15px_rgba(0,0,0,0.10)]">
+            class="flex flex-col justify-center w-full pb-2 flex-grow py-3  relative border border-gray-900/50 text-white bg-[#40414f] rounded-md shadow-[0_0_15px_rgba(0,0,0,0.10)]">
 
             <textarea @keydown.enter.prevent="promptHandler" @input="adjustTextareaHeight" ref="textarea" tabindex="0"
               rows="1" placeholder=""
-              class="w-full p-0 pl-2 m-0 bg-transparent border-0 resize-none pr-7 focus:ring-0 focus-visible:ring-0 dark:bg-transparent focus:outline-none"
+              class="w-full p-0 pl-4 m-0 bg-transparent border-0 resize-none pr-7 focus:ring-0 focus-visible:ring-0 dark:bg-transparent focus:outline-none"
               v-model="inputText"></textarea>
 
             <button @click.prevent="promptHandler"
               class="absolute p-1 rounded-md text-gray-500 right-1 md:bottom-2.5 md:right-2  hover:text-gray-400 hover:bg-gray-900  disabled:hover:bg-transparent">
 
-              <svg v-if="isDalleOn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                stroke="currentColor" class="w-4 h-4 mr-1">
+              <!-- <svg v-if="isFetching" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-4 h-4 mr-1 animate-spin">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 6a2 2 0 100-4 2 2 0 000 4zM5.25 8.25a2 2 0 100-4 2 2 0 000 4zM18.75 8.25a2 2 0 100-4 2 2 0 000 4zM5.25 15.75a2 2 0 100-4 2 2 0 000 4zM18.75 15.75a2 2 0 100-4 2 2 0 000 4zM12 21a2 2 0 100-4 2 2 0 000 4z" />
+              </svg> -->
+              <div v-if="isFetching" class="flex pr-2">
+                <span class="w-1 h-1 mr-1 bg-gray-400 rounded-full animate-loading"></span>
+                <span class="w-1 h-1 mr-1 bg-gray-400 rounded-full animate-loading"></span>
+                <span class="w-1 h-1 bg-gray-400 rounded-full animate-loading"></span>
+              </div>
+
+              <svg v-else-if="isDalleOn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
                 <path stroke-linecap="round" stroke-linejoin="round"
                   d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -148,6 +159,7 @@ const isActivatingPersona = ref(false)
 const currentPersona = ref(null)
 const selectedPersonaTitle = ref("")
 const isSearching = ref(false)
+const isFetching = ref(false)
 const isMenuShowing = ref(false)
 const isShowingUsage = ref(false)
 const chatContainer = ref(null);
@@ -158,6 +170,7 @@ const usage = ref()
 const startChatBtnTxt = ref('Start chat')
 const isValidAPIKey = ref(false)
 
+const model = ref("gpt-3.5-turbo")
 const totalTokens = ref()
 const displayTokenCount = ref("")
 const route = useRoute()
@@ -252,7 +265,7 @@ const getText = async (prompt, messages, role) => {
     method: "POST",
     body: JSON.stringify({
       messages: newArray,
-      options: { max_tokens }
+      options: { max_tokens, model: model.value }
     })
   })
 
@@ -281,6 +294,8 @@ const promptHandler = async (event) => {
     return
   }
 
+  isFetching.value = true
+
   let txt = inputText.value
   inputText.value = ""
   textarea.value.style.height = 'auto';
@@ -295,7 +310,7 @@ const promptHandler = async (event) => {
     msg = completion
     showUsage(usage)
   }
-
+  isFetching.value = false
   messages.value.push(msg)
   saveChat(messages.value)
 
@@ -432,6 +447,7 @@ async function replaceUrlsWithText(text) {
 const initApp = () => {
   savedPrompts.value = JSON.parse(localStorage.getItem("gpt3-prompts")) || prompts
   totalTokens.value = JSON.parse(localStorage.getItem("gpt3-total_tokens")) || 0
+  model.value = JSON.parse(localStorage.getItem("gpt3-model")) || "gpt-3.5-turbo"
   messages.value = JSON.parse((localStorage.getItem("gpt3-chat_current"))) || []
   isDalleOn.value = JSON.parse((localStorage.getItem("gpt3-is_dalle_on"))) || false
   saveChat(messages.value)
@@ -500,4 +516,30 @@ function adjustTextareaHeight(event) {
   margin-bottom: 0.5em;
   margin-top: 0;
 }
+@keyframes loading {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+.animate-loading {
+  animation: loading 1s infinite;
+}
+
+.animate-loading:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.animate-loading:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
 </style>

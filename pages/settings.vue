@@ -7,7 +7,16 @@
       </div>
     </div>
     <form class="mt-12 space-y-3 border-b border-zinc-600">
+      <div v-if="maxTokens" class="w-full mb-4 sm:mb-8">
+        <label for="hs-feedback-post-comment-name-1" class="block mb-2 text-xl font-medium text-white">Model</label>
+          <select @change="updateSettings({ displayValue: selectedModel, title: 'Model' })" v-model="selectedModel"
+            class="w-full px-3 py-4 rounded bg-stone-900 text-stone-300 focus:outline-none focus:ring-1 focus:ring-amber-600">
+            <option v-for="model in models" :key="model" :value="model">{{ model }}</option>
+          </select>
+          <div class="pt-3 text-xs tracking-wide text-white/30">Choose the model.</div>
+      </div>
       <div class="flex flex-col justify-between w-full sm:flex-row sm:gap-x-4 gap-y-4">
+        
         <div v-if="maxTokens" class="w-full mb-4 sm:mb-8">
           <label for="hs-feedback-post-comment-name-1" class="block mb-2 text-xl font-medium text-white">GPT Max
             Tokens</label>
@@ -32,8 +41,10 @@
       </div>
     </form>
 
-    <div class="flex items-center justify-between w-full mt-12 text-sm text-stone-400">
-      <div><span class="font-bold">{{ filteredPrompts.length }}</span> Prompts</div>
+    <div class="flex items-center justify-between w-full mt-12 mb-2 text-sm text-stone-400">
+      <div>
+        <span class="font-bold">{{ filteredPrompts.length }}</span> Prompts
+      </div>
       <button @click.prevent="isAddPrompt = !isAddPrompt" class="px-2 border rounded">New Prompt</button>
     </div>
     <div v-if="isAddPrompt" class="mt-6 mb-4 space-y-2">
@@ -58,13 +69,14 @@
       <div class="sticky top-[86px]">
 
         <input v-model="searchTerm" @keyup="searchPrompts" type="text" placeholder="search prompts"
-          class="block w-full px-4 py-3 text-sm rounded-md shadow-lg placeholder-stone-600 focus:border-amber-500 focus:ring-amber-500 focus:outline-none focus:ring-2 sm:p-4 bg-stone-900 border-stone-700 text-stone-400">
+          class="block w-full px-4 py-3 font-semibold rounded-md shadow-lg text-md placeholder-zinc-500 focus:border-amber-500 focus:ring-amber-500 focus:outline-none focus:ring-2 sm:p-4 bg-zinc-600 border-stone-700 text-stone-200">
 
       </div>
       <PromptCard @update="savePrompt" @delete="deletePrompt" v-for="(prompt, index) in filteredPrompts" :prompt="prompt"
         :index="index" />
     </div>
 
+    <ScrollTop />
   </div>
 </template>
 
@@ -77,6 +89,7 @@ const isAddPrompt = ref(false)
 const isEditingPrompt = ref(false)
 const totalTokens = ref()
 
+const models = [ "gpt-3.5-turbo", "gpt-4" ]
 const imgsizes = [ 256, 512, 1024 ]
 
 const selectedModel = ref(null)
@@ -163,6 +176,8 @@ onMounted(async () => {
     filteredPrompts.value = prompts
   }
 
+  
+  selectedModel.value = await JSON.parse(localStorage.getItem('gpt3-model')) || 'gpt-3.5-turbo';
   dalleImgSize.value = await JSON.parse(localStorage.getItem('gpt3-dalle_imgsize')) || 256;
   maxTokens.value = await JSON.parse(localStorage.getItem('gpt3-max_tokens')) || 256;
   temperature.value = await JSON.parse(localStorage.getItem('gpt3-temperature')) || 0.5;

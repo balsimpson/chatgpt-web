@@ -26,11 +26,12 @@ export default defineEventHandler(async (event) => {
 
     const messages = body.messages
     const max_tokens = body.options.max_tokens || 256
+    const model = body.options.model || "gpt-3.5-turbo"
 
-    console.log("tokens", max_tokens);
-
+    console.log("model", model);
     const prediction = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
+      // model: "gpt-3.5-turbo",
+      model: model,
       messages: messages,
       max_tokens: max_tokens
     });
